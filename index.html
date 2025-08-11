@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Who Wants to Be an AI Millionaire</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+/* -------------------- THEME & LAYOUT -------------------- */
+:root{
+  --bg:#07102a;
+  --panel:#0f2147;
+  --accent1:#ffb84d; /* Gold */
+  --accent2:#ff7a59; /* Coral */
+  --neon:#7c5cff;    /* Purple */
+  --text:#e6eef8;
+  --muted:#9fb0cd;
+  --success:#26c281;
+  --danger:#ff6b6b;
+  --glass: rgba(255,255,255,0.02);
+  --border-light: rgba(255,255,255,0.03);
+  --border-medium: rgba(255,255,255,0.06);
+  --shadow-color: rgba(2,6,18,0.7);
+}
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:
+    radial-gradient(900px 400px at 10% 12%, rgba(124,92,255,0.06), transparent 10%),
+    radial-gradient(900px 350px at 90% 90%, rgba(255,122,89,0.02), transparent 10%),
+    var(--bg);
+  font-family:'Montserrat',system-ui,-apple-system,'Segoe UI',Roboto,Arial;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  padding:18px;
+}
+* { transition: all .2s ease-out; }
+
+/* app layout */
+.app{
+  max-width:1220px;
+  margin:6px auto;
+  display:grid;
+  grid-template-columns: 1fr 340px;
+  gap:18px;
+}
+@media (max-width:1000px){ .app{ grid-template-columns:1fr; padding:12px } }
+
+.panel {
+  border-radius:14px;
+  padding:20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+  border:1px solid var(--border-light);
+  box-shadow: 0 12px 40px var(--shadow-color);
+}
+
+/* main pane */
+.main{ min-height:620px; display:flex; flex-direction:column; gap:18px; }
+
+/* ladder pane */
+.ladder{ min-height:620px; padding:20px; background: linear-gradient(180deg, rgba(13,25,60,0.6), rgba(6,12,30,0.45)); color:var(--muted); border-radius:14px; border:1px solid var(--border-light); box-shadow:0 12px 40px rgba(2,6,18,0.6); }
+
+/* START SCREEN */
+.start-screen{ display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; flex-grow: 1; text-align:center; padding:24px }
+.title{ font-family:'Playfair Display',serif; font-weight:700; font-size:44px; color:var(--accent1); margin:0; line-height: 1.2; text-shadow: 0 0 15px rgba(255, 184, 77, 0.2); }
+.lead{ color:var(--muted); max-width:760px; line-height: 1.6; }
+.start-screen .muted { font-size: 13px; margin-top: 12px; opacity: 0.8; }
+
+/* buttons */
+.btn{ padding:12px 24px; border-radius:10px; border:none; cursor:pointer; font-weight:800; letter-spacing:0.3px; font-size: 15px; }
+.btn-start{ background: linear-gradient(90deg,var(--neon),var(--accent2)); color:#041027; box-shadow: 0 8px 20px rgba(124, 92, 255, 0.2); }
+.btn-start:hover{ transform: translateY(-3px); box-shadow: 0 12px 25px rgba(255, 122, 89, 0.25); }
+.btn-ghost{ background:transparent; border:1px solid var(--border-medium); color:var(--text); }
+.btn-ghost:hover{ background: var(--glass); border-color: rgba(255,255,255,0.15); }
+
+/* topbar - lifelines and timer */
+.topbar{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px }
+
+/* --- LIFELINE STYLES --- */
+.lifelines-container { display: flex; flex-direction: column; gap: 8px; }
+.lifelines-label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding-left: 2px; opacity: 0.6; }
+.lifelines{ display:flex; gap:10px; align-items:center; }
+.lifeline-btn{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+  padding:10px;border-radius:10px; width:52px; height:48px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border:1px solid var(--border-light); position:relative;
+}
+.lifeline-btn svg { color: var(--text); }
+.lifeline-btn:hover{ transform:translateY(-3px); box-shadow: 0 6px 15px rgba(2,6,18,0.8); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.08)); }
+.lifeline-btn.used{ opacity:0.36; pointer-events:none; filter:grayscale(0.5); transform:none; box-shadow: none; }
+#muteToggle { font-size: 20px; margin-top: 29px; /* Align with other buttons */ }
+
+/* tooltip on hover */
+.lifeline-btn .tooltip{
+  position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); background:rgba(8,12,28,0.98); color:var(--muted);
+  padding:8px 12px; border-radius:8px; font-size:13px; white-space:nowrap; display:none; box-shadow:0 8px 30px rgba(0,0,0,0.6); z-index: 10;
+}
+.lifeline-btn:hover .tooltip{ display:block }
+
+/* timer */
+.timer{ margin-top: 29px; /* Align with other buttons */ padding:10px 18px; border-radius:10px; font-weight:900; font-size:22px; min-width:90px; text-align:center; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.06)); border:1px solid var(--border-light); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.timer.warning{ box-shadow:0 0 12px 2px rgba(255,160,80,0.2); color:var(--accent2); border-color: rgba(255,160,80,0.2); }
+.timer.danger{ box-shadow:0 0 15px 3px rgba(255,90,90,0.25); color:var(--danger); border-color: rgba(255,90,90,0.25); animation: pulse-danger .8s infinite; }
+@keyframes pulse-danger { 50% { transform: scale(1.05); } }
+
+/* question card */
+.question-card{ background: linear-gradient(180deg, rgba(10,20,40,0.92), rgba(6,12,30,0.92)); border-radius:12px; padding:24px; border:1px solid var(--border-medium); flex-grow: 1; display:flex; flex-direction:column; gap:14px }
+.q-meta{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.q-meta .left{ font-size:14px; color:var(--muted); }
+.q-meta .prize{ font-weight:900; color:var(--accent1); font-size:20px; }
+
+/* question text */
+.question{ font-size:clamp(18px, 2.5vw, 22px); font-weight:700; line-height:1.4; color:var(--text); margin:auto 0; white-space:normal; word-break:break-word; text-align: center; padding: 10px 0; }
+
+/* answers */
+.answers{ display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; margin-top:auto; }
+.answer{ background: linear-gradient(90deg,#26366f,#1b274f); padding:14px; border-radius:12px; border:1px solid var(--border-medium); display:flex; gap:12px; align-items:center; cursor:pointer; color:var(--text); min-height:72px; box-shadow:0 6px 18px rgba(2,8,20,0.6); position: relative; }
+.answer .label{ min-width:44px; height:44px; line-height:44px; text-align:center; border-radius:10px; font-weight:900; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12)); color:var(--muted); flex-shrink:0 }
+.answer .text{ font-weight:700; font-size:clamp(14px, 2vw, 16px); color:var(--text); line-height:1.3; white-space:normal }
+.answer:hover{ transform:translateY(-6px); box-shadow:0 12px 30px rgba(2,8,20,0.8), 0 0 15px rgba(255,184,77,0.15); border-color: rgba(255,200,120,0.2); }
+.answer.disabled{ opacity:0.32; pointer-events:none; transform:none; box-shadow:none }
+.answer.correct{
+    border-color: rgba(38,194,129,0.4);
+    background: linear-gradient(90deg, #1A4A3A, #10322A);
+    box-shadow: 0 0 20px rgba(38,194,129,0.3);
+    animation: pulse-correct .5s;
+}
+.answer.correct .label { background: var(--success); color: var(--bg); }
+@keyframes pulse-correct { 50% { transform: scale(1.03); } }
+
+.answer.wrong{
+    border-color: rgba(255,107,107,0.4);
+    background: linear-gradient(90deg, #5A2A2A, #421a1a);
+    box-shadow: 0 0 20px rgba(255,107,107,0.25);
+}
+.answer.wrong .label { background: var(--danger); color: var(--bg); }
+
+/* controls */
+.controls{ display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:12px }
+.hint{ color:var(--muted); font-size:14px }
+.walk{ background:linear-gradient(90deg,#53607f,#384a6b); color:var(--text); padding:12px 18px; border-radius:12px; font-weight:800; border:1px solid var(--border-light); cursor: pointer; }
+.walk:hover { background:linear-gradient(90deg,#69789a,#475c80); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(2,6,18,0.8); }
+
+/* ladder */
+.ladder h3{ margin:0 0 8px 0; color:var(--text); font-size:22px; font-weight: 700; }
+.ladder small{ color:var(--muted); display:block; margin-bottom:12px; }
+.prize-list{ display:flex; flex-direction:column; gap:8px; max-height:640px; overflow:auto; padding-right:6px; }
+.prize{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px; background:transparent; color:var(--muted); font-weight:700; border:1px solid var(--border-light); }
+.prize.current{ background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#041027; box-shadow:0 10px 30px rgba(255,122,89,0.25); transform:translateX(8px); border-color: transparent; }
+.prize.guaranteed{ border-color: rgba(255,184,77,0.3); box-shadow: inset 0 0 8px rgba(255,184,77,0.1); }
+.prize.guaranteed div:first-child { color: var(--accent1); }
+
+/* modals & overlays */
+.modal-backdrop{ position:fixed; inset:0; background: rgba(4,8,20,0.8); backdrop-filter: blur(4px); display:flex; align-items:center; justify-content:center; z-index:60; }
+.modal{ background: linear-gradient(180deg, #142a55, #0c1a3a); padding:24px; border-radius:14px; width:640px; max-width:94%; color:var(--text); border:1px solid var(--border-medium); box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
+.modal h3 { margin-top: 0; color: var(--accent1); font-family: 'Playfair Display'; font-size: 24px;}
+.modal p { color: var(--muted); line-height: 1.6; }
+
+/* final-answer overlay */
+.final-overlay{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:120;
+  background: linear-gradient(180deg, rgba(2,6,18,0.7), rgba(2,6,18,0.9));
+  backdrop-filter: blur(5px);
+}
+.final-card{
+  background:linear-gradient(180deg, #142a55, #0c1a3a); padding:24px; border-radius:14px;
+  width:420px; max-width:92%; text-align:center; border:1px solid var(--border-medium);
+  box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+}
+#finalPrompt { font-family: 'Playfair Display'; font-size: 28px; margin-bottom: 8px; color: var(--accent1); }
+#finalChoice { color: var(--muted); margin-bottom: 20px; font-size: 16px; }
+#finalChoice strong { color: var(--text); font-size: 18px; }
+
+/* celebration confetti (simple) */
+.confetti { position:fixed; pointer-events:none; width:100%; height:100%; left:0; top:0; z-index:110; }
+.piece{ position:absolute; width:10px; height:16px; border-radius:2px; opacity:0; animation: fall 1100ms linear forwards; }
+@keyframes fall {
+  0%{ opacity:1; transform:translateY(-40px) rotate(0deg) }
+  100%{ opacity:1; transform:translateY(520px) rotate(720deg) }
+}
+
+/* end screen */
+.end-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:24px 0; text-align:center; }
+.end-title{ font-family:'Playfair Display'; font-size:42px; color:var(--accent1); margin:0; }
+.end-screen > .muted { margin-bottom: 12px; }
+#endPrize { font-size: 24px; font-weight: 700; color: var(--text); }
+#nameEntrySection { width: 100%; max-width: 480px; }
+#nameEntrySection input {
+  padding:12px 16px; border-radius:8px; border:1px solid var(--border-medium);
+  background:rgba(0,0,0,0.2); color:var(--text); min-width: 260px;
+  font-size: 15px; text-align: center; flex-grow: 1;
+}
+#nameEntrySection input:focus { border-color: var(--neon); outline: none; box-shadow: 0 0 10px rgba(124, 92, 255, 0.2); }
+#saveScoreBtn { background: linear-gradient(90deg,var(--accent1),#ffd27a); color:#04101a; }
+#postSaveControls { display: flex; gap: 12px; align-items: center; margin-top: 24px; }
+
+/* leaderboard table */
+.leaderboard-section {
+  width:100%; max-width:720px; margin-top:24px; text-align:left;
+  background: rgba(0,0,0,0.1); padding: 16px; border-radius: 12px;
+  border: 1px solid var(--border-light);
+}
+.leaderboard-section h4 { margin: 0 0 12px 0; color:var(--muted); font-size: 18px; text-align: center; }
+.leaderboard{ margin-top:12px; width:100%; max-width:720px; color:var(--muted); }
+.lb-row{ display:flex; justify-content:space-between; gap:12px; padding:10px 12px; border-radius:8px; background:rgba(255,255,255,0.018); margin-bottom:6px; font-weight:700; border-bottom: 1px solid var(--border-light); }
+.lb-row:last-child { border-bottom: none; }
+.lb-row div:first-child { color: var(--text); }
+
+/* subtle animations */
+.fade-in{ animation:fadeIn .45s ease-out both; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+
+/* -------------------- RETRO CERTIFICATE STYLES -------------------- */
+#retroCertificate {
+  display: none; /* Hidden by default */
+  width: 100%;
+  max-width: 800px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  padding: 30px;
+  border-radius: 12px;
+  border: 4px solid #ffdf00;
+  text-align: center;
+  font-family: 'Press Start 2P', cursive;
+  position: relative;
+  overflow: hidden;
+  margin-top: 24px;
+  box-shadow: 0 0 40px rgba(255, 223, 0, 0.2);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+#retroCertificate::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(25deg);
+    animation: shine-sweep 4s infinite;
+}
+@keyframes shine-sweep {
+    0% { transform: translateX(-75%) rotate(25deg); }
+    100% { transform: translateX(75%) rotate(25deg); }
+}
+#retroCertificate h2 {
+  font-size: clamp(16px, 4vw, 24px);
+  margin: 10px 0 20px 0;
+  color: #ffdf00;
+  line-height: 1.2;
+}
+#retroCertificate h3 {
+  font-size: clamp(18px, 5vw, 32px);
+  margin: 10px 0;
+  color: #33ffdd;
+}
+#retroCertificate p {
+  margin: 15px 0;
+  color: #efefef;
+  font-size: clamp(10px, 2.5vw, 12px);
+  line-height: 1.5;
+}
+.cert-badge {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  width: 100px;
+  height: 100px;
+  background: conic-gradient(from 0deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2;
+  padding: 4px;
+  text-shadow: none;
+  animation: holographic-spin 3s infinite linear;
+}
+@keyframes holographic-spin {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+
+/* -------------------- GRAND PRIZE CELEBRATION STYLES -------------------- */
+#winOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 12, 30, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 200;
+  color: white;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  backdrop-filter: blur(5px);
+}
+#winOverlay h1 {
+  font-size: clamp(40px, 10vw, 90px);
+  color: #ffd700;
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffb84d, 0 0 40px #ff7a59;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.firework {
+  position: absolute;
+}
+.firework .particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: explode 1s ease-out forwards;
+}
+@keyframes explode {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+}
+
+/* --- NEW: PAGE FOOTER STYLES --- */
+.page-footer {
+  width: 100%;
+  max-width: 1220px;
+  margin: 24px auto 0;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+.page-footer a {
+  color: var(--accent1);
+  font-weight: 700;
+  text-decoration: none;
+}
+.page-footer a:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="panel main" id="mainPanel">
+
+      <div id="startScreen" class="start-screen fade-in">
+        <h1 class="title">Who Wants to Be an <span style="color:var(--neon)">AI</span> Millionaire</h1>
+        <p class="lead">13 questions about Generative AI, Agentic systems, and LLMs. 30 seconds per question. 3 lifelines. Two guaranteed levels at Q5 and Q10. Timer pauses on final answer confirmation.</p>
+        <div style="display:flex;gap:12px;align-items:center; margin-top: 12px;">
+          <button id="startBtn" class="btn btn-start">Start Game</button>
+          <button id="howBtn" class="btn btn-ghost">How to Play</button>
+        </div>
+        <p class="muted">Now with grand prize celebrations and a high-fidelity certificate!</p>
+      </div>
+
+      <div id="gameArea" style="display:none; flex-direction: column; flex-grow: 1;">
+        <div class="topbar">
+          <div class="lifelines-container">
+            <div class="lifelines-label">LIFELINES</div>
+            <div class="lifelines" id="lifelineBar">
+              <button class="lifeline-btn" id="btn5050" data-key="5050" aria-label="50:50">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"/>
+                  <path d="M5 12l-2-2"/>
+                  <path d="M7 10v4"/>
+                  <path d="M12 10v4"/>
+                  <path d="M17 10v4"/>
+                  <path d="M19 12l2 2"/>
+                </svg>
+                <div class="tooltip">50:50 — Remove two incorrect answers</div>
+              </button>
+              <button class="lifeline-btn" id="btnPhone" data-key="phone" aria-label="Phone an AI Expert">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7h-3A2.5 2.5 0 0 1 4 4.5v0A2.5 2.5 0 0 1 6.5 2h3Z"/>
+                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v0A2.5 2.5 0 0 0 14.5 7h3A2.5 2.5 0 0 0 20 4.5v0A2.5 2.5 0 0 0 17.5 2h-3Z"/>
+                  <path d="M6 10a2 2 0 0 1-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v1a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a2 2 0 0 0 2-2v-3a2 2 0 0 1-2-2h-1"/>
+                  <path d="M12 11.5v-1.5"/>
+                </svg>
+                <div class="tooltip">Phone an AI Expert — Get a suggested answer (≈78% accurate)</div>
+              </button>
+              <button class="lifeline-btn" id="btnCollective" data-key="collective" aria-label="Ask the AI Collective">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <div class="tooltip">Ask the AI Collective — Simulated poll / audience</div>
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="muteToggle" class="lifeline-btn" title="Toggle sound">🔊</div>
+            <div id="timer" class="timer">30s</div>
+          </div>
+        </div>
+        <div class="question-card" id="questionCard">
+          <div class="q-meta">
+            <div class="left">Question <span id="qIndex">1</span> of 13</div>
+            <div class="prize" id="currentPrize">$100</div>
+          </div>
+          <div class="question" id="questionText">Loading question...</div>
+          <div class="answers" id="answers"></div>
+        </div>
+        <div class="controls">
+          <div class="hint">Select an answer to confirm.</div>
+          <div><button id="walkAwayBtn" class="walk">Walk Away</button></div>
+        </div>
+      </div>
+
+      <div id="finalOverlay" style="display:none" class="final-overlay">
+        <div class="final-card fade-in">
+          <div id="finalPrompt">Final answer?</div>
+          <div id="finalChoice">You selected: <strong>A</strong></div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button id="finalCancel" class="btn btn-ghost">Cancel</button>
+            <button id="finalConfirm" class="btn btn-start">Confirm Answer</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="confetti" class="confetti" aria-hidden="true"></div>
+      <div id="winContainer" aria-hidden="true"></div>
+
+      <div id="modalRoot" style="display:none"></div>
+
+      <div id="endScreen" style="display:none" class="end-screen">
+        <h2 class="end-title" id="endTitle">Game Over</h2>
+        <p class="muted">You won <strong id="endPrize">$0</strong></p>
+        <div id="nameEntrySection" style="display:flex;gap:10px;align-items:center; margin-top: 12px;">
+          <input id="playerName" placeholder="Enter name for certificate" />
+          <button id="saveScoreBtn" class="btn btn-start">Save & See Certificate</button>
+        </div>
+        <div id="retroCertificate">
+          <h2 id="certTitle">🏆 GenAI Wizard Award 🏆</h2>
+          <p>This certifies that</p>
+          <h3 id="certName">Player</h3>
+          <p>Has achieved AI Mastery with winnings of</p>
+          <h3 id="certAmount">$1,000,000</h3>
+          <p>Date: <span id="certDate"></span></p>
+          <div class="cert-badge">GenAI<br/>Knowledge<br/>Series</div>
+        </div>
+        <div id="postSaveControls" style="display:none; gap:10px;align-items:center; margin-top: 24px;">
+          <button id="certBtn" class="btn btn-ghost">Get PNG Certificate</button>
+          <button id="playAgainBtn" class="btn btn-ghost">Play Again</button>
+        </div>
+        <div id="leaderboardSection" class="leaderboard-section" style="display:none;">
+          <h4 style="color:var(--muted)">Leaderboard (Top 5)</h4>
+          <div id="leaderboard" class="leaderboard"></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ladder panel">
+      <h3>Prize Ladder</h3>
+      <small>Guaranteed at Q5 and Q10</small>
+      <div class="prize-list" id="prizeList"></div>
+    </aside>
+  </div>
+
+  <!-- NEW: PAGE FOOTER -->
+  <footer class="page-footer">
+    Built to help friends stay curious about GenAI. A project by <a href="https://www.linkedin.com/in/rahulsapru444/" target="_blank" rel="noopener noreferrer">Rahul Sapru</a>
+  </footer>
+
+  <audio id="sndStart" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="sndSuspense" loop src="https://actions.google.com/sounds/v1/ambiences/medium_crowd_cheer.ogg"></audio>
+  <audio id="sndFinal" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+  <audio id="sndCorrect" src="https://actions.google.com/sounds/v1/cartoon/clang.ogg"></audio>
+  <audio id="sndWrong" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"></audio>
+  <audio id="sndLifeline" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg"></audio>
+  <audio id="sndMilestone" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+  <audio id="sndCelebrate" src="https://actions.google.com/sounds/v1/alarms/medium_bell_ring.ogg"></audio>
+  <audio id="sndCrowd" loop src="https://actions.google.com/sounds/v1/ambiences/large_crowd_cheer_med.ogg"></audio>
+
+<script>
+/* -------------------- GAME DATA -------------------- */
+const PRIZES = [
+  {tier:13,label:"$1,000,000"}, {tier:12,label:"$125,000"}, {tier:11,label:"$64,000"},
+  {tier:10,label:"$32,000",guaranteed:true}, {tier:9,label:"$16,000"}, {tier:8,label:"$8,000"},
+  {tier:7,label:"$4,000"}, {tier:6,label:"$2,000"}, {tier:5,label:"$1,000",guaranteed:true},
+  {tier:4,label:"$500"}, {tier:3,label:"$300"}, {tier:2,label:"$200"}, {tier:1,label:"$100"}
+];
+
+const AMAZON_QUESTIONS = [
+    {q:"What is Amazon Bedrock's primary function?", choices:["A serverless database","A service to build with foundation models","A cloud-based IDE","A data streaming service"], a:1, difficulty:1},
+    {q:"Amazon's own family of foundation models, available in Bedrock, is named what?", choices:["Olympus","Aurora","Titan","Meridian"], a:2, difficulty:1},
+    {q:"Which AWS service is an AI-powered coding companion, similar to GitHub Copilot?", choices:["CodeCatalyst","Cloud9","CodeWhisperer","CodeDeploy"], a:2, difficulty:1},
+    {q:"What is Amazon's conversational AI assistant for businesses, designed to be an 'expert on your business'?", choices:["Alexa for Business","Amazon Expert","Amazon Q","AWS Concierge"], a:2, difficulty:1},
+    {q:"AWS's custom-designed chip for high-performance AI model *training* is called:", choices:["Graviton","Inferentia","Trainium","Anapurna"], a:2, difficulty:2},
+    {q:"AWS's custom-designed chip optimized for cost-effective AI model *inference* is called:", choices:["Inferentia","Trainium","Graviton","QuantumLeap"], a:0, difficulty:2},
+    {q:"In 2023-2024, Amazon made a multi-billion dollar investment in which major AI startup, making their models available on Bedrock?", choices:["OpenAI","Cohere","Mistral AI","Anthropic"], a:3, difficulty:2},
+    {q:"Within Amazon Bedrock, what feature allows you to orchestrate tasks by giving the model access to tools and APIs?", choices:["Knowledge Bases","Provisioned Throughput","Agents","Guardrails"], a:2, difficulty:3},
+    {q:"What AWS service is a fully managed platform to build, train, and deploy machine learning models at scale?", choices:["Amazon Rekognition","AWS Lambda","Amazon SageMaker","Amazon Polly"], a:2, difficulty:1},
+    {q:"Who was appointed to lead Amazon's new centralized AGI (Artificial General Intelligence) group in 2024?", choices:["Andy Jassy","Satya Nadella","Rohit Prasad","Adam Selipsky"], a:2, difficulty:3},
+    {q:"What is the primary purpose of 'Knowledge Bases for Amazon Bedrock'?", choices:["To fine-tune a model's weights","To implement Retrieval-Augmented Generation (RAG)","To store user conversations","To cache model responses"], a:1, difficulty:2},
+    {q:"Amazon's Titan Image Generator model includes what built-in responsible AI feature by default?", choices:["Content filtering","Bias detection","Invisible watermarks","Redaction of faces"], a:2, difficulty:3},
+    {q:"Which former Amazon SVP of Devices & Services joined Rohit Prasad to lead the AGI efforts?", choices:["Jeff Wilke","Dave Clark","David Limp","Werner Vogels"], a:2, difficulty:3},
+    {q:"Amazon often describes its generative AI strategy in 'three layers'. What do these layers represent?", choices:["Small, Medium, Large models","Text, Image, Audio models","Infrastructure, Tools/FMs, Applications","Internal, Partner, Open-Source models"], a:2, difficulty:3},
+    {q:"The Claude 3 family of models (Haiku, Sonnet, Opus) from Anthropic are prominently featured on which AWS service?", choices:["Amazon SageMaker","EC2 P5 Instances","Amazon Bedrock","AWS AI Platform"], a:2, difficulty:2},
+    {q:"Which AWS service uses AI to automatically extract text and data from scanned documents?", choices:["Amazon Textract","AWS Comprehend","Amazon S3 Select","AWS Glue"], a:0, difficulty:1},
+    {q:"If you wanted to turn text into lifelike speech using an AI service on AWS, which would you use?", choices:["Amazon Transcribe","Amazon Lex","Amazon Polly","Amazon Speechify"], a:2, difficulty:1},
+    {q:"What feature in SageMaker provides access to a broad selection of pre-trained models, including many open-source foundation models?", choices:["SageMaker Studio","SageMaker Pipelines","SageMaker Canvas","SageMaker JumpStart"], a:3, difficulty:2},
+    {q:"When using Amazon Q, what allows it to connect to your company's specific data sources like S3, Slack, or Salesforce?", choices:["IAM Roles","VPC Endpoints","Connectors","DataSync"], a:2, difficulty:2},
+    {q:"AWS's AI-powered service for identifying objects, people, text, and activities in images and videos is called:", choices:["Amazon Lookout","Amazon Rekognition","AWS Panorama","Amazon Inspector"], a:1, difficulty:1}
+];
+
+let QUESTION_BANK = [
+{q:"What does 'LLM' commonly stand for in AI?", choices:["Large Language Model","Linear Learning Matrix","Local Latent Model","Low-Level ML"], a:0, difficulty:1},
+{q:"Which company developed ChatGPT?", choices:["Meta","OpenAI","Nvidia","Amazon"], a:1, difficulty:1},
+{q:"What is 'prompt engineering' primarily concerned with?", choices:["Designing training hardware","Tuning prompts to get better outputs","Building GPUs","Improving RLHF algorithms"], a:1, difficulty:1},
+{q:"Which core architecture is used by many modern language models like GPT?", choices:["Convolutional Networks","Recurrent Neural Networks","Transformers","Decision Trees"], a:2, difficulty:1},
+{q:"What is a 'hallucination' in LLM output?", choices:["A visualization tool","An incorrect but plausible-sounding answer","A model training phase","A dataset type"], a:1, difficulty:1},
+{q:"Which of these is a text-to-image model?", choices:["Stable Diffusion","TensorFlow","PyTorch","ResNet"], a:0, difficulty:1},
+{q:"Who is the CEO of Nvidia (commonly associated with AI hardware)?", choices:["Sundar Pichai","Sam Altman","Jensen Huang","Elon Musk"], a:2, difficulty:1},
+{q:"Which product is a generative model by Google/Alphabet?", choices:["Gemini","Copilot","DALL·E","Midjourney"], a:0, difficulty:1},
+{q:"'RLHF' stands for which training technique?", choices:["Reinforcement Learning from Human Feedback","Randomized Linear Heuristic Fit","Recurrent Latent Human Function","Rapid Learning Hybrid Framework"], a:0, difficulty:1},
+{q:"What does 'tokens' refer to in LLMs?", choices:["Units of text the model processes","Encryption keys","Neural network weights","GPU memory blocks"], a:0, difficulty:1},
+{q:"Which company is part of the 'Magnificent 7' and also makes consumer devices like iPhones?", choices:["Apple","OpenAI","Nvidia","Anthropic"], a:0, difficulty:1},
+{q:"Which model family is produced by OpenAI and widely used in chat interfaces?", choices:["GPT","BERT","ResNet","LLaMA"], a:0, difficulty:1},
+{q:"What is 'fine-tuning' in LLMs?", choices:["Adjusting hyperparameters only","Training a model further on specific data","Converting model to binary","Compressing weights"], a:1, difficulty:1},
+{q:"Which social platform's company owns 'Threads' and has invested in AI?", choices:["Meta","Amazon","Apple","Nvidia"], a:0, difficulty:1},
+{q:"Which company is famous for GPUs critical to AI training?", choices:["Nvidia","Tesla","Alphabet","OpenAI"], a:0, difficulty:1},
+{q:"What is 'chain-of-thought' prompting used for?", choices:["Encoding audio","Improving step-by-step reasoning","GPU optimization","Data cleaning"], a:1, difficulty:1},
+{q:"Which of these is a popular image-generation service used by artists?", choices:["Midjourney","Hadoop","Cassandra","Kubeflow"], a:0, difficulty:1},
+{q:"What is a 'checkpoint' in model development?", choices:["A dataset split method","A saved model state","A cloud provider","A type of GPU"], a:1, difficulty:1},
+{q:"Which company acquired DeepMind?", choices:["Amazon","Facebook","Alphabet (Google)","Microsoft"], a:2, difficulty:1},
+{q:"'AGI' stands for which term?", choices:["Artificial General Intelligence","Applied Gradient Integration","Autonomous Grid Interface","Augmented Generative Innovation"], a:0, difficulty:1},
+{q:"Which paper introduced the Transformer architecture?", choices:["Attention Is All You Need","ImageNet: A large-scale hierarchical image database","Playing Atari with Deep Reinforcement Learning","Generative Adversarial Networks"], a:0, difficulty:2},
+{q:"What core mechanism enables Transformers to weigh importance between tokens?", choices:["Convolution","Self-attention","Backpropagation","Dropout"], a:1, difficulty:2},
+{q:"What is RLHF primarily used to achieve in LLMs?", choices:["Scale model size","Align model outputs with human preferences","Compress model weights","Speed up inference times"], a:1, difficulty:2},
+{q:"Which OpenAI leader is commonly credited as being CEO and a public figure?", choices:["Sam Altman","Ilya Sutskever","Elon Musk","Geoffrey Hinton"], a:0, difficulty:2},
+{q:"What is 'inference' in the context of LLMs?", choices:["Training with labeled data","The model producing outputs for inputs","Data collection practice","Model sharding technique"], a:1, difficulty:2},
+{q:"Which of these is an open-source family of LLMs released by Meta?", choices:["LLaMA","BERT","GPT-NeoX","PaLM"], a:0, difficulty:2},
+{q:"What is the primary benefit of model parallelism?", choices:["Improves model's reasoning","Allows training very large models across devices","Prevents hallucinations","Improves interpretability"], a:1, difficulty:2},
+{q:"Which company released 'Copilot' as a coding assistant?", choices:["Microsoft","Apple","Nvidia","Anthropic"], a:0, difficulty:2},
+{q:"What is 'temperature' in language model sampling?", choices:["A training hyperparameter for learning rate","A sampling parameter that affects randomness","GPU thermal limit","Size of the model's context window"], a:1, difficulty:2},
+{q:"Which leader is CEO of Nvidia?", choices:["Satya Nadella","Jensen Huang","Tim Cook","Sundar Pichai"], a:1, difficulty:2},
+{q:"What does 'few-shot' prompting mean?", choices:["Giving the model a few small hints after the answer","Providing a few examples in the prompt","Training on a few GPUs","Limiting outputs to a few tokens"], a:1, difficulty:2},
+{q:"Which model family did Google release as an LLM competitor to GPT?", choices:["PaLM / Gemini","ResNet","BERT","YOLO"], a:0, difficulty:2},
+{q:"What is a 'decoder-only' Transformer like GPT primarily designed for?", choices:["Text generation","Image segmentation","Speech recognition","Feature extraction"], a:0, difficulty:2},
+{q:"Which technique helps reduce hallucinations by grounding models in tools or retrieval?", choices:["Gradient clipping","Retrieval-Augmented Generation (RAG)","Weight decay","Dropout"], a:1, difficulty:2},
+{q:"What does 'tokenization' do?", choices:["Converts GPU tensors to CPU","Transforms text into discrete tokens","Encrypts data before training","Removes stopwords automatically"], a:1, difficulty:2},
+{q:"Which company founded by Elon Musk was involved in early AI discussions?", choices:["OpenAI (co-founder investor)","Nvidia","Anthropic","DeepMind"], a:0, difficulty:2},
+{q:"What is 'parameter count' generally used to describe for LLMs?", choices:["Number of training steps","Size of model weights","Inference latency","Number of GPUs used"], a:1, difficulty:2},
+{q:"Which of these is primarily a diffusion-based image generator?", choices:["Stable Diffusion","GPT-4","BERT","TransformerXL"], a:0, difficulty:2},
+{q:"What is 'alignment' in AI safety terms?", choices:["Aligning datasets' formats","Ensuring models behave according to human values/preferences","Tuning hardware to model scale","Converting models to edge devices"], a:1, difficulty:2},
+{q:"Which company released 'DALL·E' as an image generation model?", choices:["OpenAI","Google","Meta","Nvidia"], a:0, difficulty:2},
+{q:"Which core idea helps attention scale on long sequences?", choices:["Full attention scales better","Sparse attention can improve efficiency","Neither","Convolution"], a:1, difficulty:3},
+{q:"What is 'distillation' in model compression?", choices:["Training a smaller model to mimic a larger one","A data collection process","A special GPU cooling method","A visualization technique"], a:0, difficulty:2},
+{q:"Which mitigation reduces LLM risk by consulting external sources?", choices:["Zero-shot learning","Retrieval-Augmented Generation (RAG)","GAN training","Dropout"], a:1, difficulty:2},
+{q:"Which company produces H100 & A100 GPUs?", choices:["Nvidia","AMD","Intel","Qualcomm"], a:0, difficulty:2},
+{q:"What does 'context window' refer to for an LLM?", choices:["Number of GPUs available","Amount of text (tokens) model can attend to","Batch size","Learning rate schedule"], a:1, difficulty:2},
+{q:"Which team introduced BERT?", choices:["Google Research","OpenAI","Meta","Microsoft"], a:0, difficulty:2},
+{q:"What drawback can larger LLMs have if unmitigated?", choices:["Slower training convergence","More likelihood to hallucinate if unaligned","They no longer generalize","They cease being probabilistic"], a:1, difficulty:2},
+{q:"Which OpenAI model emphasized instruction following?", choices:["InstructGPT","ResNet","AlexNet","LLaMA"], a:0, difficulty:2},
+{q:"What does 'safety fine-tuning' typically involve?", choices:["Adding adversarial GPUs","Training on curated data + human feedback","Removing attention layers","Converting models to CPU"], a:1, difficulty:2},
+{q:"Which is an example of a multimodal AI system?", choices:["A model handling text+images (e.g., GPT-4 multimodal)","RNN","SVM","Linear regression"], a:0, difficulty:2},
+{q:"What is 'zero-shot' capability?", choices:["Solve tasks without examples","Train without data","Zero inference cost","Run with zero latency"], a:0, difficulty:2},
+{q:"Which leader is CEO of Microsoft?", choices:["Satya Nadella","Sundar Pichai","Jensen Huang","Tim Cook"], a:0, difficulty:1},
+{q:"Which company hosts Azure OpenAI?", choices:["Microsoft","Amazon","Apple","Meta"], a:0, difficulty:2},
+{q:"What is 'instruction tuning' focused on?", choices:["Optimizing GPU ISA","Fine-tuning models with instruction examples","Hardware calibration","Data sanitation"], a:1, difficulty:2},
+{q:"What does 'hallucination rate' measure?", choices:["Refusal percentage","Frequency of incorrect plausible outputs","Training loss","Parameter sparsity"], a:1, difficulty:2},
+{q:"Which field studies interpretability?", choices:["Explainable AI (XAI)","GANs","RL","Cloud orchestration"], a:0, difficulty:2},
+{q:"What is 'prompt injection'?", choices:["Optimizing prompts for speed","A vulnerability that manipulates model behavior","Data augmentation","Activation function"], a:1, difficulty:2},
+{q:"Which company develops 'Gemini'?", choices:["Google / Alphabet","OpenAI","Nvidia","Apple"], a:0, difficulty:1},
+{q:"Which architecture is used for encoder-decoder tasks?", choices:["Encoder-only","Decoder-only","Encoder-decoder (T5)","Convolution-only"], a:2, difficulty:2},
+{q:"What is 'alignment tax'?", choices:["Literal tax","Trade-offs between capability & alignment","Taxes on data centers","GPU tariffs"], a:1, difficulty:3},
+{q:"How to keep LLMs up-to-date without retraining?", choices:["Change vocabulary","Use retrieval / tools","Increase params","Lower temperature"], a:1, difficulty:3},
+{q:"'Mixture of Experts' aims to:", choices:["Route inputs to subsets of parameters to scale efficiently","Blend human experts","Cause hallucinations","Compress datasets"], a:0, difficulty:3},
+{q:"Which concept produces intermediate reasoning steps?", choices:["Chain-of-thought prompting","Temperature annealing","Dropout scheduling","Weight decay"], a:0, difficulty:3},
+{q:"Agentic AI risk include:", choices:["Unintended autonomous actions","Lower inference cost","Better tokenization","Faster fine-tuning"], a:0, difficulty:3},
+{q:"What is 'safety alignment' testing about?", choices:["Energy efficiency","Ensuring constraints & avoid harm","GPU utilization","Licensing"], a:1, difficulty:3},
+{q:"Who coined 'transformer' architecture?", choices:["Google researchers (Vaswani et al.)","OpenAI","FAIR","DeepMind"], a:0, difficulty:3},
+{q:"Why quantize an LLM?", choices:["Increase precision","Reduce model size for inference","Increase hallucinations","Add tokens"], a:1, difficulty:3},
+{q:"What is 'catastrophic forgetting'?", choices:["Losing earlier knowledge when learning new tasks","GPU failure","Dataset metric","Overfitting sign"], a:0, difficulty:3},
+{q:"Which safety approach uses model self-critique?", choices:["Self-critique / auditing","Dropout","Backprop","Tokenization"], a:0, difficulty:3},
+{q:"Which project focuses on diffusion image generation?", choices:["Stable Diffusion","Hadoop","OpenCV","Caffe"], a:0, difficulty:2},
+{q:"What does context length trade off against?", choices:["GPU vendor","Memory & compute cost","Accuracy always up","Number of layers"], a:1, difficulty:3},
+{q:"How reduce bias in model outputs?", choices:["Data curation & human feedback","Increase temperature","Use smaller models only","Remove tokenizer"], a:0, difficulty:3},
+{q:"Which Tesla leader speaks on AI regulation?", choices:["Elon Musk","Sam Altman","Jensen Huang","Ilya Sutskever"], a:0, difficulty:2},
+{q:"What is 'red teaming' in AI?", choices:["Adversarial evaluation to find failure modes","Server hacking","GPU cluster","Compression technique"], a:0, difficulty:3},
+{q:"Tool use example by language models?", choices:["Calling a search API to fetch facts","Change own weights","Alter hardware","Decrease context"], a:0, difficulty:3},
+{q:"Which company built LLaMA?", choices:["Meta","OpenAI","Nvidia","Google"], a:0, difficulty:2},
+{q:"Which area makes LLM outputs explainable?", choices:["Explainable AI (XAI)","GANs","Reinforcement Learning","Cloud orchestration"], a:0, difficulty:3},
+{q:"Which bottleneck limits huge LLM training throughput?", choices:["Network & interconnect bandwidth","Model architecture","Tokenization speed","Font rendering"], a:0, difficulty:3},
+{q:"Which open library is used for transformers?", choices:["Hugging Face Transformers","NumPy only","Pandas","Matplotlib"], a:0, difficulty:2},
+{q:"What is 'sparse attention' useful for?", choices:["Reduce compute for long contexts","Increase hallucinations","Slow inference","Simulate GPUs"], a:0, difficulty:3},
+{q:"Adobe product for generative editing?", choices:["Firefly","DreamStudio","Copilot","Gemini"], a:0, difficulty:2},
+{q:"What is 'overfitting'?", choices:["Good on training, poor on unseen","Too many GPUs","Hardware failure","Data augmentation"], a:0, difficulty:2},
+{q:"How to update LLM factuality without retraining?", choices:["Retrieval/tools/adapters","More params","Raise temperature","Smaller batch"], a:0, difficulty:3},
+{q:"Which improves LLM factuality?", choices:["RAG, grounding & human feedback","Only more tokens","Only more GPUs","Only higher temperature"], a:0, difficulty:3}
+];
+
+// Combine the question banks
+QUESTION_BANK = QUESTION_BANK.concat(AMAZON_QUESTIONS);
+
+/* -------------------- STATE & DOM -------------------- */
+let state = {
+  roundQuestions: [], currentIndex:0,
+  usedLifelines: {'5050':false,'phone':false,'collective':false},
+  timerRef:null, timeLeft:30, isMuted:false, playing:false,
+  achievedTier:0, finalPrizeLabel:"$0"
+};
+
+// --- DOM Elements ---
+const startBtn = document.getElementById('startBtn'), howBtn = document.getElementById('howBtn'),
+      startScreen = document.getElementById('startScreen'), gameArea = document.getElementById('gameArea'),
+      qIndexEl = document.getElementById('qIndex'), questionText = document.getElementById('questionText'),
+      answersEl = document.getElementById('answers'), timerEl = document.getElementById('timer'),
+      btn5050 = document.getElementById('btn5050'), btnPhone = document.getElementById('btnPhone'), btnCollective = document.getElementById('btnCollective'),
+      muteToggle = document.getElementById('muteToggle'), walkAwayBtn = document.getElementById('walkAwayBtn'),
+      prizeListEl = document.getElementById('prizeList'), currentPrizeEl = document.getElementById('currentPrize'),
+      modalRoot = document.getElementById('modalRoot'), finalOverlay = document.getElementById('finalOverlay'),
+      finalChoiceText = document.getElementById('finalChoice'), finalConfirm = document.getElementById('finalConfirm'), finalCancel = document.getElementById('finalCancel'),
+      confettiContainer = document.getElementById('confetti'), winContainer = document.getElementById('winContainer');
+
+// --- End Screen Elements ---
+const endScreen = document.getElementById('endScreen'), endTitle = document.getElementById('endTitle'),
+      endPrize = document.getElementById('endPrize'),
+      nameEntrySection = document.getElementById('nameEntrySection'),
+      playerNameInput = document.getElementById('playerName'),
+      saveScoreBtn = document.getElementById('saveScoreBtn'),
+      postSaveControls = document.getElementById('postSaveControls'),
+      certBtn = document.getElementById('certBtn'), playAgainBtn = document.getElementById('playAgainBtn'),
+      leaderboardSection = document.getElementById('leaderboardSection'),
+      leaderboardDiv = document.getElementById('leaderboard');
+
+// --- Certificate Elements ---
+const retroCert = document.getElementById('retroCertificate'),
+      certTitleEl = document.getElementById('certTitle'),
+      certNameEl = document.getElementById('certName'),
+      certAmountEl = document.getElementById('certAmount'),
+      certDateEl = document.getElementById('certDate');
+
+// --- Audio Elements ---
+const sndStart = document.getElementById('sndStart'), sndSuspense = document.getElementById('sndSuspense'),
+      sndFinal = document.getElementById('sndFinal'), sndCorrect = document.getElementById('sndCorrect'),
+      sndWrong = document.getElementById('sndWrong'), sndLifeline = document.getElementById('sndLifeline'),
+      sndMilestone = document.getElementById('sndMilestone'), sndCelebrate = document.getElementById('sndCelebrate'),
+      sndCrowd = document.getElementById('sndCrowd');
+
+function playSound(el){ if(!el || state.isMuted) return; try{ el.currentTime = 0; el.play().catch(()=>{}); }catch(e){} }
+function stopSound(el){ try{ if(el){ el.pause(); el.currentTime = 0; } }catch(e){} }
+
+/* -------------------- PRIZE LADDER UI -------------------- */
+function populatePrizeLadder(){
+  prizeListEl.innerHTML = '';
+  PRIZES.forEach(p=>{
+    const d = document.createElement('div'); d.className = 'prize'; if(p.guaranteed) d.classList.add('guaranteed'); d.dataset.tier = p.tier;
+    d.innerHTML = `<div>#${p.tier}</div><div>${p.label}</div>`;
+    prizeListEl.appendChild(d);
+  });
+}
+function highlightPrize(){
+  const currentTier = state.currentIndex < PRIZES.length ? PRIZES[PRIZES.length - 1 - state.currentIndex].tier : PRIZES[0].tier;
+  Array.from(prizeListEl.children).forEach(el => el.classList.toggle('current', Number(el.dataset.tier) === currentTier));
+}
+function prizeForIndex(idx){ return idx < PRIZES.length ? PRIZES[PRIZES.length - 1 - idx].label : '$0'; }
+function guaranteedAtIndex(idx){ if(idx < 0) return "$0"; let g="$0"; for(let i=0;i<=idx;i++){ const p = PRIZES[PRIZES.length - 1 - i]; if(p && p.guaranteed) g = p.label; } return g; }
+
+/* -------------------- ROUND BUILDER -------------------- */
+function buildRound(){
+  const easy = QUESTION_BANK.filter(q=>q.difficulty===1).slice();
+  const med = QUESTION_BANK.filter(q=>q.difficulty===2).slice();
+  const hard = QUESTION_BANK.filter(q=>q.difficulty===3).slice();
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+  shuffle(easy); shuffle(med); shuffle(hard);
+  const selected = [].concat(easy.slice(0,4), med.slice(0,5), hard.slice(0,4));
+  shuffle(selected);
+  state.roundQuestions = selected;
+}
+
+/* -------------------- RENDER QUESTION -------------------- */
+function renderQuestion(){
+  const idx = state.currentIndex, q = state.roundQuestions[idx];
+  
+  gameArea.classList.remove('fade-in');
+  void gameArea.offsetWidth;
+  gameArea.classList.add('fade-in');
+
+  qIndexEl.textContent = idx + 1;
+  questionText.textContent = q.q;
+  currentPrizeEl.textContent = prizeForIndex(idx);
+  answersEl.innerHTML = '';
+  q.choices.forEach((c,i)=>{
+    const btn = document.createElement('button'); btn.className = 'answer'; btn.dataset.index = i;
+    btn.innerHTML = `<div class="label">${String.fromCharCode(65+i)}</div><div class="text">${c}</div>`;
+    btn.addEventListener('click', ()=> onAnswerClicked(btn, i));
+    answersEl.appendChild(btn);
+  });
+  highlightPrize(); setTime(30);
+  stopSound(sndFinal); stopSound(sndCorrect); stopSound(sndWrong); playSound(sndSuspense);
+}
+
+/* -------------------- TIMER -------------------- */
+function setTime(t){ state.timeLeft = t; updateTimerUI(); }
+function updateTimerUI(){ timerEl.textContent = `${state.timeLeft}s`; timerEl.classList.remove('warning','danger'); if(state.timeLeft <= 10 && state.timeLeft > 5) timerEl.classList.add('warning'); if(state.timeLeft <= 5) timerEl.classList.add('danger'); }
+function startTimer(){ if(state.timerRef) clearInterval(state.timerRef); state.timerRef = setInterval(()=>{ state.timeLeft--; updateTimerUI(); if(state.timeLeft <= 0){ clearInterval(state.timerRef); state.timerRef = null; stopSound(sndSuspense); playSound(sndWrong); const final = guaranteedAtIndex(state.achievedTier - 1); endGame('timeout', final); } }, 1000); }
+function pauseTimer(){ if(state.timerRef){ clearInterval(state.timerRef); state.timerRef = null; } }
+
+/* -------------------- ANSWER FLOW with FINAL overlay -------------------- */
+let pendingAnswerBtn = null, pendingAnswerIndex = null;
+function onAnswerClicked(btnEl, index){
+  if (btnEl.classList.contains('disabled')) return;
+  pauseTimer();
+  pendingAnswerBtn = btnEl; pendingAnswerIndex = index;
+  finalChoiceText.innerHTML = `You selected: <strong>${String.fromCharCode(65+index)}: ${btnEl.querySelector('.text').textContent}</strong>`;
+  finalOverlay.style.display = 'flex';
+  finalConfirm.focus(); playSound(sndFinal);
+}
+finalCancel.addEventListener('click', ()=>{ finalOverlay.style.display = 'none'; pendingAnswerBtn = null; pendingAnswerIndex = null; Array.from(answersEl.children).forEach(b => b.classList.remove('disabled')); startTimer(); });
+finalConfirm.addEventListener('click', ()=>{ finalOverlay.style.display = 'none'; if (!pendingAnswerBtn) { startTimer(); return; } Array.from(answersEl.children).forEach(b => b.classList.add('disabled')); setTimeout(()=> evaluateAnswer(pendingAnswerIndex, pendingAnswerBtn), 600); });
+
+function evaluateAnswer(chosenIndex, btnEl){
+  const q = state.roundQuestions[state.currentIndex];
+  const isCorrect = chosenIndex === q.a;
+  if (isCorrect){
+    btnEl.classList.add('correct'); playSound(sndCorrect);
+    state.achievedTier = state.currentIndex + 1;
+    if (state.achievedTier === 13) { // Grand prize win
+        stopSound(sndSuspense);
+        setTimeout(() => showGrandPrizeCelebration(), 1000);
+        return;
+    }
+    celebrateShort();
+    if (state.achievedTier === 5 || state.achievedTier === 10){
+      const bank = guaranteedAtIndex(state.currentIndex);
+      showModal(`<h3>Milestone Reached!</h3><p>Congratulations — you've reached a guaranteed level!</p><div style="margin-top:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:800;text-align:center;font-size:18px;">${bank}</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Continue</button></div>`);
+      playSound(sndMilestone);
+    }
+    setTimeout(()=>{ state.currentIndex++; renderQuestion(); startTimer(); }, 1800);
+  } else {
+    btnEl.classList.add('wrong');
+    const corr = Array.from(answersEl.children).find(b => Number(b.dataset.index) === q.a);
+    if (corr) corr.classList.add('correct');
+    playSound(sndWrong); stopSound(sndSuspense);
+    const final = guaranteedAtIndex(state.currentIndex - 1);
+    setTimeout(()=> endGame('lose', final), 2000);
+  }
+  pendingAnswerBtn = null; pendingAnswerIndex = null;
+}
+
+/* -------------------- CELEBRATIONS -------------------- */
+function celebrateShort(){
+  playSound(sndCelebrate);
+  const colors = ['#ffb84d','#ff7a59','#7c5cff','#26c281','#ffd27a'];
+  confettiContainer.innerHTML = '';
+  for(let i=0;i<28;i++){
+    const el = document.createElement('div');
+    el.className = 'piece'; el.style.left = (Math.random()*100)+'%';
+    el.style.background = colors[i % colors.length]; el.style.animationDelay = (Math.random()*180) + 'ms';
+    confettiContainer.appendChild(el);
+  }
+  setTimeout(()=>{ confettiContainer.innerHTML = ''; }, 1600);
+}
+
+function showGrandPrizeCelebration() {
+    const overlay = document.createElement('div');
+    overlay.id = 'winOverlay';
+    overlay.innerHTML = `<h1 class="fade-in">YOU'VE WON<br>$1,000,000!</h1>`;
+    winContainer.appendChild(overlay);
+
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => createFirework(overlay), Math.random() * 4000);
+    }
+    
+    playSound(sndCrowd);
+
+    setTimeout(() => {
+        winContainer.innerHTML = '';
+        stopSound(sndCrowd);
+        endGame('win', prizeForIndex(12));
+    }, 6000);
+}
+
+function createFirework(container) {
+    const firework = document.createElement('div');
+    firework.className = 'firework';
+    firework.style.left = `${Math.random() * 90 + 5}%`;
+    firework.style.top = `${Math.random() * 80 + 10}%`;
+    container.appendChild(firework);
+
+    const colors = ['#ffb84d', '#ff7a59', '#7c5cff', '#3ee08b', '#ffd27a', '#ffffff'];
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 100 + 50;
+        particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        firework.appendChild(particle);
+    }
+}
+
+/* -------------------- LIFELINES with CONFIRMATION -------------------- */
+function showModal(html){
+  modalRoot.innerHTML = `<div class="modal-backdrop fade-in"><div class="modal">${html}</div></div>`;
+  modalRoot.style.display = 'block';
+  const closeBtn = document.getElementById('modalClose');
+  if (closeBtn) closeBtn.addEventListener('click', ()=>{ modalRoot.style.display='none'; modalRoot.innerHTML=''; });
+  modalRoot.querySelector('.modal-backdrop').addEventListener('click', (ev)=>{ if (ev.target.classList.contains('modal-backdrop')){ modalRoot.style.display='none'; modalRoot.innerHTML=''; }});
+}
+function confirmLifeline(key, title, desc, onUse){
+  showModal(`<h3>${title}</h3><p>${desc}</p><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"><button id="modalCancel" class="btn btn-ghost">Cancel</button><button id="modalUse" class="btn btn-start" style="padding:10px 16px">Use Lifeline</button></div>`);
+  document.getElementById('modalCancel').addEventListener('click', ()=>{ modalRoot.style.display='none'; });
+  document.getElementById('modalUse').addEventListener('click', ()=>{ modalRoot.style.display='none'; onUse(); });
+}
+btn5050.addEventListener('click', ()=>{ if (state.usedLifelines['5050']) return; confirmLifeline('50:50','Use 50:50?','This will remove two randomly selected incorrect answers.', ()=>{ state.usedLifelines['5050'] = true; btn5050.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const wrongs = [0,1,2,3].filter(i => i !== q.a); for(let i=wrongs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [wrongs[i],wrongs[j]]=[wrongs[j],wrongs[i]]; } const remove = wrongs.slice(0,2); Array.from(answersEl.children).forEach(b => { if (remove.includes(Number(b.dataset.index))) b.classList.add('disabled'); }); }); });
+btnPhone.addEventListener('click', ()=>{ if (state.usedLifelines['phone']) return; confirmLifeline('Phone an AI Expert','Use Phone an AI Expert?','This will give you a suggestion from a simulated expert (≈78% accurate).', ()=>{ state.usedLifelines['phone'] = true; btnPhone.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const accurate = Math.random() < 0.78; const suggestion = accurate ? q.a : [0,1,2,3].filter(i=>i!==q.a)[Math.floor(Math.random()*3)]; showModal(`<h3>AI Expert Suggestion</h3><p class="muted">Your simulated expert has considered the question.</p><div style="margin-top:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:800; text-align:center;font-size:18px;">"I'm fairly confident the answer is <strong>${String.fromCharCode(65+suggestion)}</strong>."</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Close</button></div>`); }); });
+btnCollective.addEventListener('click', ()=>{ if (state.usedLifelines['collective']) return; confirmLifeline('Ask the AI Collective','Use Ask the AI Collective?','See the results of a simulated poll of AI specialists.', ()=>{ state.usedLifelines['collective'] = true; btnCollective.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const correctShare = 50 + Math.floor(Math.random()*31); const remaining = 100 - correctShare; const wrongs = [0,1,2,3].filter(i=>i!==q.a); const r1 = Math.floor(Math.random()*remaining), r2 = Math.floor(Math.random()*(remaining-r1)), r3 = remaining - r1 - r2; const shares = {}; shares[q.a] = correctShare; shares[wrongs[0]] = r1; shares[wrongs[1]] = r2; shares[wrongs[2]] = r3; let bars = ''; [0,1,2,3].forEach(i=>{ bars += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:36px;font-weight:800;color:var(--accent1)">${String.fromCharCode(65+i)}</div><div style="flex:1;background:rgba(0,0,0,0.2);height:18px;border-radius:8px;overflow:hidden"><div style="height:18px;width:${shares[i] || 0}%;background:${i===q.a?'linear-gradient(90deg,var(--success),#3ee08b)':'linear-gradient(90deg,#53607f,#384a6b)'}"></div></div><div style="width:44px;text-align:right;font-weight:700">${shares[i] || 0}%</div></div>`; }); showModal(`<h3>AI Collective Poll</h3><p class="muted">The collective has voted. Here are the results:</p><div style="margin-top:16px">${bars}</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Close</button></div>`); }); });
+
+/* -------------------- WALK AWAY & END GAME -------------------- */
+walkAwayBtn.addEventListener('click', ()=>{
+  pauseTimer(); stopSound(sndSuspense); playSound(sndFinal);
+  const currentWinnings = state.currentIndex > 0 ? prizeForIndex(state.currentIndex - 1) : "$0";
+  showModal(`<h3>Walk Away?</h3><p>Are you sure you want to walk away? You will leave with your current winnings of <strong>${currentWinnings}</strong>.</p><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px"><button id="modalCancel" class="btn btn-ghost">No, Keep Playing</button><button id="modalConfirmWalk" class="btn btn-start">Yes, Walk Away</button></div>`);
+  document.getElementById('modalCancel').addEventListener('click', ()=>{ modalRoot.style.display='none'; startTimer(); });
+  document.getElementById('modalConfirmWalk').addEventListener('click', ()=>{ modalRoot.style.display='none'; endGame('walkaway', currentWinnings); });
+});
+
+function endGame(reason, amountLabel){
+  state.playing = false;
+  gameArea.style.display = 'none';
+  endScreen.style.display = 'flex';
+  endScreen.classList.remove('fade-in');
+  void endScreen.offsetWidth;
+  endScreen.classList.add('fade-in');
+
+  if (state.timerRef) clearInterval(state.timerRef);
+  stopSound(sndSuspense);
+  let title = "Game Over";
+  if (reason === 'win') title = "Congratulations!";
+  else if (reason === 'timeout') title = "Out of Time!";
+  else if (reason === 'walkaway') title = "You Walked Away";
+  else if (reason === 'lose') title = "Incorrect Answer";
+  endTitle.textContent = title;
+  endPrize.textContent = amountLabel || "$0";
+  state.finalPrizeLabel = amountLabel || "$0";
+  playSound(sndFinal);
+  playerNameInput.focus();
+}
+
+function populateRetroCertificate(name, prizeLabel) {
+    const num = parseAmount(prizeLabel);
+    let title = "";
+    if (prizeLabel === "$1,000,000") {
+        title = "✨ AI Millionaire! ✨";
+    } else if (num >= 32000) {
+        title = "👾 AI Prodigy 👾";
+    } else if (num > 0) {
+        title = "🕹️ GenAI Wizard 🕹️";
+    } else {
+        title = "Brave Contestant";
+    }
+    certTitleEl.innerHTML = title;
+    certNameEl.textContent = name;
+    certAmountEl.textContent = prizeLabel;
+    certDateEl.textContent = new Date().toLocaleDateString();
+}
+
+/* -------------------- LEADERBOARD & SCORE SAVING -------------------- */
+const LB_KEY = 'ai_millionaire_leaderboard_v4';
+function readLeaderboard(){ try { const raw = localStorage.getItem(LB_KEY); return raw ? JSON.parse(raw) : []; } catch(e){ return []; } }
+function writeLeaderboard(list){ try { localStorage.setItem(LB_KEY, JSON.stringify(list)); } catch(e){} }
+function parseAmount(label){ return Number((label || '').replace(/[^0-9]/g, '')) || 0; }
+function saveScore(name, amountLabel){
+  const list = readLeaderboard();
+  const entry = { name: name || 'Player', amount: amountLabel || "$0", amountNum: parseAmount(amountLabel), date: new Date().toLocaleString() };
+  list.push(entry);
+  list.sort((a,b)=> b.amountNum - a.amountNum);
+  const truncated = list.slice(0,20);
+  writeLeaderboard(truncated);
+}
+function renderLeaderboard(){
+  leaderboardDiv.innerHTML = '';
+  const top = readLeaderboard().slice(0,5);
+  if (top.length === 0) {
+    leaderboardDiv.innerHTML = '<div class="muted" style="text-align:center;">No scores yet. Be the first!</div>';
+    return;
+  }
+  top.forEach((e, idx)=>{
+    const row = document.createElement('div'); row.className = 'lb-row';
+    row.innerHTML = `<div style="min-width:140px; display: flex; align-items: center; gap: 8px;"><span style="color:var(--neon); min-width: 20px;">#${idx+1}</span> ${e.name}</div><div style="flex:1; text-align:right">${e.amount} <span style="color:var(--muted); font-weight:600; margin-left:8px; font-size:12px">${e.date.split(',')[0]}</span></div>`;
+    leaderboardDiv.appendChild(row);
+  });
+}
+
+saveScoreBtn.addEventListener('click', ()=>{
+  const name = (playerNameInput.value || '').trim();
+  if (name === "") { playerNameInput.placeholder = "Please enter a name first!"; playerNameInput.focus(); return; }
+  saveScore(name, state.finalPrizeLabel);
+  populateRetroCertificate(name, state.finalPrizeLabel);
+  renderLeaderboard();
+  nameEntrySection.style.display = 'none';
+  retroCert.style.display = 'block';
+  leaderboardSection.style.display = 'block';
+  postSaveControls.style.display = 'flex';
+});
+
+playAgainBtn.addEventListener('click', ()=> startGame());
+
+/* -------------------- PNG CERTIFICATE (canvas) -------------------- */
+certBtn.addEventListener('click', async () => {
+  const name = certNameEl.textContent;
+  certBtn.textContent = 'Generating...';
+  certBtn.disabled = true;
+  await generatePngCertificate(name, state.finalPrizeLabel);
+  certBtn.textContent = 'Get PNG Certificate';
+  certBtn.disabled = false;
+});
+
+async function generatePngCertificate(name, prizeLabel){
+  const canvas = document.createElement('canvas');
+  canvas.width = 1400; canvas.height = 1000;
+  const ctx = canvas.getContext('2d');
+  
+  await document.fonts.load('48px "Press Start 2P"');
+  await document.fonts.load('24px "Press Start 2P"');
+
+  const g = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+  g.addColorStop(0,'#0f2027'); g.addColorStop(1.0,'#2c5364');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.strokeStyle = '#ffdf00'; ctx.lineWidth = 8;
+  ctx.strokeRect(20,20,canvas.width-40,canvas.height-40);
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  
+  // --- FIXED: Ensures PNG title matches on-screen title ---
+  const num = parseAmount(prizeLabel);
+  let titleText = ""; 
+  if (prizeLabel === "$1,000,000") {
+      titleText = "✨ AI Millionaire! ✨";
+  } else if (num >= 32000) {
+      titleText = "👾 AI Prodigy 👾";
+  } else if (num > 0) {
+      titleText = "🕹️ GenAI Wizard 🕹️";
+  } else {
+      titleText = "Brave Contestant";
+  }
+  
+  ctx.font = '48px "Press Start 2P"'; ctx.fillStyle = '#ffdf00';
+  ctx.fillText(titleText, canvas.width/2, 180);
+
+  ctx.font = '24px "Press Start 2P"'; ctx.fillStyle = '#efefef';
+  ctx.fillText('This certifies that', canvas.width/2, 320);
+
+  ctx.font = '60px "Press Start 2P"'; ctx.fillStyle = '#33ffdd';
+  ctx.fillText(name, canvas.width/2, 420);
+
+  ctx.font = '24px "Press Start 2P"'; ctx.fillStyle = '#efefef';
+  ctx.fillText('Has achieved AI Mastery with winnings of', canvas.width/2, 520);
+  
+  ctx.font = '60px "Press Start 2P"'; ctx.fillStyle = '#33ffdd';
+  ctx.fillText(prizeLabel, canvas.width/2, 620);
+  
+  ctx.font = '24px "Press Start 2P"'; ctx.fillStyle = '#efefef';
+  ctx.fillText(`Date: ${new Date().toLocaleDateString()}`, canvas.width/2, 720);
+
+  const badgeX = canvas.width - 180, badgeY = canvas.height - 180, badgeR = 100;
+  const badgeGrad = ctx.createConicGradient(0, badgeX, badgeY);
+  badgeGrad.addColorStop(0, '#ff00ff');
+  badgeGrad.addColorStop(0.33, '#00ffff');
+  badgeGrad.addColorStop(0.66, '#ffff00');
+  badgeGrad.addColorStop(1, '#ff00ff');
+  ctx.fillStyle = badgeGrad;
+  ctx.beginPath();
+  ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.font = '22px "Press Start 2P"'; ctx.fillStyle = '#000000';
+  ctx.fillText('GenAI', badgeX, badgeY - 24);
+  ctx.fillText('Knowledge', badgeX, badgeY);
+  ctx.fillText('Series', badgeX, badgeY + 24);
+  
+  const url = canvas.toDataURL('image/png'); const a = document.createElement('a'); a.href = url;
+  const safe = name.replace(/[^a-z0-9]/gi,'_') || 'player'; a.download = `${safe}_AI_Millionaire_Cert.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* -------------------- START, RESET, INIT FLOW -------------------- */
+startBtn.addEventListener('click', ()=> startGame());
+howBtn.addEventListener('click', ()=> showModal(`<h3>How to Play</h3><p>Answer 13 multiple-choice questions on AI to win $1,000,000. You have 30 seconds per question, but the timer will pause when you select an answer to give you a moment to confirm.</p><p>You have 3 lifelines: <strong>50:50</strong> (removes two wrong answers), <strong>Phone an Expert</strong> (gets a hint), and <strong>Ask the Collective</strong> (simulates a poll).</p><p>There are two guaranteed prize levels: <strong>$1,000</strong> (Question 5) and <strong>$32,000</strong> (Question 10). If you get an answer wrong, you'll walk away with the last guaranteed amount you passed. Good luck!</p><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Got it!</button></div>`));
+
+function startGame(){
+  startScreen.style.display = 'none';
+  endScreen.style.display = 'none';
+  gameArea.style.display = 'flex';
+  
+  gameArea.classList.remove('fade-in');
+  void gameArea.offsetWidth;
+  gameArea.classList.add('fade-in');
+
+  nameEntrySection.style.display = 'flex';
+  postSaveControls.style.display = 'none';
+  retroCert.style.display = 'none';
+  leaderboardSection.style.display = 'none';
+  playerNameInput.value = '';
+  playerNameInput.placeholder = 'Enter name for certificate';
+  state.usedLifelines = {'5050':false,'phone':false,'collective':false};
+  [btn5050,btnPhone,btnCollective].forEach(b => b.classList.remove('used'));
+  buildRound();
+  state.currentIndex = 0;
+  state.achievedTier = 0;
+  state.finalPrizeLabel = "$0";
+  state.playing = true;
+  renderQuestion();
+  startTimer();
+  playSound(sndStart);
+}
+
+muteToggle.addEventListener('click', ()=>{
+  state.isMuted = !state.isMuted;
+  muteToggle.textContent = state.isMuted ? '🔇' : '🔊';
+  if(state.isMuted){ [sndStart,sndSuspense,sndFinal,sndCorrect,sndWrong,sndLifeline,sndMilestone,sndCelebrate,sndCrowd].forEach(stopSound); }
+});
+
+(function init(){
+  populatePrizeLadder();
+  gameArea.style.display = 'none';
+  endScreen.style.display = 'none';
+})();
+</script>
+</body>
+</html>
