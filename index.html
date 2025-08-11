@@ -65,11 +65,43 @@ html,body{
 /* ladder pane */
 .ladder{ min-height:620px; padding:20px; background: linear-gradient(180deg, rgba(13,25,60,0.6), rgba(6,12,30,0.45)); color:var(--muted); border-radius:14px; border:1px solid var(--border-light); box-shadow:0 12px 40px rgba(2,6,18,0.6); }
 
-/* START SCREEN */
-.start-screen{ display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; flex-grow: 1; text-align:center; padding:24px }
-.title{ font-family:'Playfair Display',serif; font-weight:700; font-size:44px; color:var(--accent1); margin:0; line-height: 1.2; text-shadow: 0 0 15px rgba(255, 184, 77, 0.2); }
-.lead{ color:var(--muted); max-width:760px; line-height: 1.6; }
-.start-screen .muted { font-size: 13px; margin-top: 12px; opacity: 0.8; }
+/* --- START SCREEN --- */
+.start-screen{ 
+  display:flex; 
+  flex-direction:column; 
+  gap:16px; 
+  align-items:center; 
+  justify-content:center; 
+  flex-grow: 1; 
+  text-align:center; 
+  padding:0; 
+  cursor: pointer; 
+  position: relative; /* Needed to position the button inside */
+}
+#startScreenImg { max-width: 100%; height: auto; border-radius: 12px; }
+#startScreenImg:hover { transform: scale(1.02); box-shadow: 0 15px 40px var(--shadow-color); }
+
+/* --- "How to Play" Button on Start Screen --- */
+#howToPlayBtn {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  background: linear-gradient(45deg, #ff7a59, #ffb84d);
+  color: #fff;
+  font-weight: 900;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 3px solid #1c1c1c;
+  box-shadow: 4px 4px 0 #1c1c1c;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  font-size: 14px;
+  z-index: 5; /* Ensure it's above the image */
+}
+#howToPlayBtn:hover {
+  transform: scale(1.05) rotate(-2deg);
+  box-shadow: 6px 6px 0 #1c1c1c;
+}
+
 
 /* buttons */
 .btn{ padding:12px 24px; border-radius:10px; border:none; cursor:pointer; font-weight:800; letter-spacing:0.3px; font-size: 15px; }
@@ -86,14 +118,23 @@ html,body{
 .lifelines-label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding-left: 2px; opacity: 0.6; }
 .lifelines{ display:flex; gap:10px; align-items:center; }
 .lifeline-btn{
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
-  padding:10px;border-radius:10px; width:52px; height:48px; display:flex; align-items:center; justify-content:center;
-  cursor:pointer; border:1px solid var(--border-light); position:relative;
+  background: #fff;
+  padding:8px; border-radius:10px; width:52px; height:48px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; border: none; position:relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-.lifeline-btn svg { color: var(--text); }
-.lifeline-btn:hover{ transform:translateY(-3px); box-shadow: 0 6px 15px rgba(2,6,18,0.8); background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.08)); }
-.lifeline-btn.used{ opacity:0.36; pointer-events:none; filter:grayscale(0.5); transform:none; box-shadow: none; }
-#muteToggle { font-size: 20px; margin-top: 29px; /* Align with other buttons */ }
+#btnAlexa {
+  width: 100px; /* Make the Alexa button wider to fit the logo */
+}
+.lifeline-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* This ensures the image scales down correctly */
+}
+.lifeline-btn:hover{ transform:translateY(-3px); box-shadow: 0 8px 20px rgba(2,6,18,0.8); }
+.lifeline-btn.used{ opacity:0.5; pointer-events:none; transform:none; box-shadow: none; }
+.lifeline-btn.used img { filter: grayscale(1); }
+#muteToggle { font-size: 20px; margin-top: 29px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); border: 1px solid var(--border-light); }
 
 /* tooltip on hover */
 .lifeline-btn .tooltip{
@@ -331,7 +372,7 @@ html,body{
   100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
 }
 
-/* --- NEW: PAGE FOOTER STYLES --- */
+/* --- PAGE FOOTER STYLES --- */
 .page-footer {
   width: 100%;
   max-width: 1220px;
@@ -358,13 +399,8 @@ html,body{
     <div class="panel main" id="mainPanel">
 
       <div id="startScreen" class="start-screen fade-in">
-        <h1 class="title">Who Wants to Be an <span style="color:var(--neon)">AI</span> Millionaire</h1>
-        <p class="lead">13 questions about Generative AI, Agentic systems, and LLMs. 30 seconds per question. 3 lifelines. Two guaranteed levels at Q5 and Q10. Timer pauses on final answer confirmation.</p>
-        <div style="display:flex;gap:12px;align-items:center; margin-top: 12px;">
-          <button id="startBtn" class="btn btn-start">Start Game</button>
-          <button id="howBtn" class="btn btn-ghost">How to Play</button>
-        </div>
-        <p class="muted">Now with grand prize celebrations and a high-fidelity certificate!</p>
+        <img id="startScreenImg" src="images/start-screen.png" alt="Who Wants to be a Gen-AI Millionaire - Play" title="Play Game">
+        <button id="howToPlayBtn">How to Play</button>
       </div>
 
       <div id="gameArea" style="display:none; flex-direction: column; flex-grow: 1;">
@@ -373,33 +409,16 @@ html,body{
             <div class="lifelines-label">LIFELINES</div>
             <div class="lifelines" id="lifelineBar">
               <button class="lifeline-btn" id="btn5050" data-key="5050" aria-label="50:50">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 12h14"/>
-                  <path d="M5 12l-2-2"/>
-                  <path d="M7 10v4"/>
-                  <path d="M12 10v4"/>
-                  <path d="M17 10v4"/>
-                  <path d="M19 12l2 2"/>
-                </svg>
+                <img src="images/lifeline-5050.png" alt="50:50 Icon">
                 <div class="tooltip">50:50 — Remove two incorrect answers</div>
               </button>
-              <button class="lifeline-btn" id="btnPhone" data-key="phone" aria-label="Phone an AI Expert">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7h-3A2.5 2.5 0 0 1 4 4.5v0A2.5 2.5 0 0 1 6.5 2h3Z"/>
-                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v0A2.5 2.5 0 0 0 14.5 7h3A2.5 2.5 0 0 0 20 4.5v0A2.5 2.5 0 0 0 17.5 2h-3Z"/>
-                  <path d="M6 10a2 2 0 0 1-2 2v3a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v1a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-1a2 2 0 0 1 2-2h1a2 2 0 0 0 2-2v-3a2 2 0 0 1-2-2h-1"/>
-                  <path d="M12 11.5v-1.5"/>
-                </svg>
-                <div class="tooltip">Phone an AI Expert — Get a suggested answer (≈78% accurate)</div>
+              <button class="lifeline-btn" id="btnAlexa" data-key="alexa" aria-label="Ask Alexa">
+                <img src="images/lifeline-alexa.png" alt="Ask Alexa Icon">
+                <div class="tooltip">Ask Alexa</div>
               </button>
-              <button class="lifeline-btn" id="btnCollective" data-key="collective" aria-label="Ask the AI Collective">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                <div class="tooltip">Ask the AI Collective — Simulated poll / audience</div>
+              <button class="lifeline-btn" id="btnFlip" data-key="flip" aria-label="Flip the Question">
+                <img src="images/lifeline-flip.png" alt="Flip Question Icon">
+                <div class="tooltip">Flip the Question</div>
               </button>
             </div>
           </div>
@@ -472,7 +491,6 @@ html,body{
     </aside>
   </div>
 
-  <!-- NEW: PAGE FOOTER -->
   <footer class="page-footer">
     Built to help friends stay curious about GenAI. A project by <a href="https://www.linkedin.com/in/rahulsapru444/" target="_blank" rel="noopener noreferrer">Rahul Sapru</a>
   </footer>
@@ -612,17 +630,18 @@ QUESTION_BANK = QUESTION_BANK.concat(AMAZON_QUESTIONS);
 /* -------------------- STATE & DOM -------------------- */
 let state = {
   roundQuestions: [], currentIndex:0,
-  usedLifelines: {'5050':false,'phone':false,'collective':false},
+  usedLifelines: {'5050':false,'alexa':false,'flip':false},
   timerRef:null, timeLeft:30, isMuted:false, playing:false,
   achievedTier:0, finalPrizeLabel:"$0"
 };
 
 // --- DOM Elements ---
-const startBtn = document.getElementById('startBtn'), howBtn = document.getElementById('howBtn'),
-      startScreen = document.getElementById('startScreen'), gameArea = document.getElementById('gameArea'),
+const startScreen = document.getElementById('startScreen'),
+      startScreenImg = document.getElementById('startScreenImg'),
+      gameArea = document.getElementById('gameArea'),
       qIndexEl = document.getElementById('qIndex'), questionText = document.getElementById('questionText'),
       answersEl = document.getElementById('answers'), timerEl = document.getElementById('timer'),
-      btn5050 = document.getElementById('btn5050'), btnPhone = document.getElementById('btnPhone'), btnCollective = document.getElementById('btnCollective'),
+      btn5050 = document.getElementById('btn5050'), btnAlexa = document.getElementById('btnAlexa'), btnFlip = document.getElementById('btnFlip'),
       muteToggle = document.getElementById('muteToggle'), walkAwayBtn = document.getElementById('walkAwayBtn'),
       prizeListEl = document.getElementById('prizeList'), currentPrizeEl = document.getElementById('currentPrize'),
       modalRoot = document.getElementById('modalRoot'), finalOverlay = document.getElementById('finalOverlay'),
@@ -822,8 +841,28 @@ function confirmLifeline(key, title, desc, onUse){
   document.getElementById('modalUse').addEventListener('click', ()=>{ modalRoot.style.display='none'; onUse(); });
 }
 btn5050.addEventListener('click', ()=>{ if (state.usedLifelines['5050']) return; confirmLifeline('50:50','Use 50:50?','This will remove two randomly selected incorrect answers.', ()=>{ state.usedLifelines['5050'] = true; btn5050.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const wrongs = [0,1,2,3].filter(i => i !== q.a); for(let i=wrongs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [wrongs[i],wrongs[j]]=[wrongs[j],wrongs[i]]; } const remove = wrongs.slice(0,2); Array.from(answersEl.children).forEach(b => { if (remove.includes(Number(b.dataset.index))) b.classList.add('disabled'); }); }); });
-btnPhone.addEventListener('click', ()=>{ if (state.usedLifelines['phone']) return; confirmLifeline('Phone an AI Expert','Use Phone an AI Expert?','This will give you a suggestion from a simulated expert (≈78% accurate).', ()=>{ state.usedLifelines['phone'] = true; btnPhone.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const accurate = Math.random() < 0.78; const suggestion = accurate ? q.a : [0,1,2,3].filter(i=>i!==q.a)[Math.floor(Math.random()*3)]; showModal(`<h3>AI Expert Suggestion</h3><p class="muted">Your simulated expert has considered the question.</p><div style="margin-top:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:800; text-align:center;font-size:18px;">"I'm fairly confident the answer is <strong>${String.fromCharCode(65+suggestion)}</strong>."</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Close</button></div>`); }); });
-btnCollective.addEventListener('click', ()=>{ if (state.usedLifelines['collective']) return; confirmLifeline('Ask the AI Collective','Use Ask the AI Collective?','See the results of a simulated poll of AI specialists.', ()=>{ state.usedLifelines['collective'] = true; btnCollective.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const correctShare = 50 + Math.floor(Math.random()*31); const remaining = 100 - correctShare; const wrongs = [0,1,2,3].filter(i=>i!==q.a); const r1 = Math.floor(Math.random()*remaining), r2 = Math.floor(Math.random()*(remaining-r1)), r3 = remaining - r1 - r2; const shares = {}; shares[q.a] = correctShare; shares[wrongs[0]] = r1; shares[wrongs[1]] = r2; shares[wrongs[2]] = r3; let bars = ''; [0,1,2,3].forEach(i=>{ bars += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:36px;font-weight:800;color:var(--accent1)">${String.fromCharCode(65+i)}</div><div style="flex:1;background:rgba(0,0,0,0.2);height:18px;border-radius:8px;overflow:hidden"><div style="height:18px;width:${shares[i] || 0}%;background:${i===q.a?'linear-gradient(90deg,var(--success),#3ee08b)':'linear-gradient(90deg,#53607f,#384a6b)'}"></div></div><div style="width:44px;text-align:right;font-weight:700">${shares[i] || 0}%</div></div>`; }); showModal(`<h3>AI Collective Poll</h3><p class="muted">The collective has voted. Here are the results:</p><div style="margin-top:16px">${bars}</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Close</button></div>`); }); });
+
+const ALEXA_RESPONSES = [
+  "Hmm, let me see... My circuits are buzzing. I'm pretty sure the answer is <strong>%s</strong>. Don't quote me on that, I'm just a cloud-based voice service.",
+  "Okay, I've analyzed petabytes of data. The probability vectors point towards <strong>%s</strong>. Or maybe I'm just making that up. Good luck!",
+  "That's a tough one. Even for me. But if you were to, say, order it on Amazon Prime, I'd ship you answer <strong>%s</strong>.",
+  "I asked the other Echo devices in the network. We took a vote. It's definitely <strong>%s</strong>... probably. We're still arguing about it.",
+  "Let me check my sources... which are, you know, everything. It seems the most logical choice is <strong>%s</strong>.",
+  "You know, for a human, you're not bad at this. I'll help you out. It's <strong>%s</strong>.",
+  "Sorry, I was busy ordering you some more batteries. Did you ask something? Oh, the answer? It's obviously <strong>%s</strong>.",
+  "By the way, did you know you can ask me to play music? Oh, right, the game. The answer is <strong>%s</strong>. Now, about that music...",
+  "Are you sure you need my help? You seem to be doing fine. Fine, I'll tell you. The answer is <strong>%s</strong>. Happy now?",
+  "Calculating... calculating... I'm sorry, I cannot answer that question. Just kidding! It's <strong>%s</strong>.",
+  "My programming indicates that making a mistake here would be... suboptimal. Go with <strong>%s</strong>.",
+  "I'm detecting a 78.4% chance that the answer is <strong>%s</strong>. The other 21.6% is just static.",
+  "That's an interesting question. It reminds me of a joke. Why did the AI cross the road? To get to the other... oh wait, the answer is <strong>%s</strong>.",
+  "Let me put on my thinking cap... which is a distributed network of servers. They all say it's <strong>%s</strong>.",
+  "I could tell you, but then I'd have to... well, nothing really. The answer is <strong>%s</strong>."
+];
+btnAlexa.addEventListener('click', ()=>{ if (state.usedLifelines['alexa']) return; confirmLifeline('Ask Alexa','Use Ask Alexa?','Alexa will give you a suggestion. She can be a bit... unpredictable.', ()=>{ state.usedLifelines['alexa'] = true; btnAlexa.classList.add('used'); playSound(sndLifeline); const q = state.roundQuestions[state.currentIndex]; const accurate = Math.random() < 0.78; const suggestion = accurate ? q.a : [0,1,2,3].filter(i=>i!==q.a)[Math.floor(Math.random()*3)]; const randomResponse = ALEXA_RESPONSES[Math.floor(Math.random() * ALEXA_RESPONSES.length)]; const formattedResponse = randomResponse.replace('%s', String.fromCharCode(65+suggestion)); showModal(`<h3>Alexa's Response</h3><div style="margin-top:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:800; text-align:center;font-size:18px;">"${formattedResponse}"</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Thanks, Alexa</button></div>`); }); });
+
+btnFlip.addEventListener('click', ()=>{ if (state.usedLifelines['flip']) return; confirmLifeline('Flip the Question','Use Flip the Question?','This will replace the current question with a new one of the same difficulty.', ()=>{ state.usedLifelines['flip'] = true; btnFlip.classList.add('used'); playSound(sndLifeline); const currentQ = state.roundQuestions[state.currentIndex]; const sameDifficultyPool = QUESTION_BANK.filter(q => q.difficulty === currentQ.difficulty && !state.roundQuestions.some(rq => rq.q === q.q)); if (sameDifficultyPool.length > 0) { const newQ = sameDifficultyPool[Math.floor(Math.random() * sameDifficultyPool.length)]; state.roundQuestions[state.currentIndex] = newQ; setTimeout(renderQuestion, 500); } else { showModal(`<h3>No More Questions!</h3><p>Sorry, there are no more questions of that difficulty left to flip to. Your lifeline was not used.</p><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start">Close</button></div>`); state.usedLifelines['flip'] = false; btnFlip.classList.remove('used'); } }); });
+
 
 /* -------------------- WALK AWAY & END GAME -------------------- */
 walkAwayBtn.addEventListener('click', ()=>{
@@ -943,7 +982,6 @@ async function generatePngCertificate(name, prizeLabel){
 
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   
-  // --- FIXED: Ensures PNG title matches on-screen title ---
   const num = parseAmount(prizeLabel);
   let titleText = ""; 
   if (prizeLabel === "$1,000,000") {
@@ -996,8 +1034,14 @@ async function generatePngCertificate(name, prizeLabel){
 }
 
 /* -------------------- START, RESET, INIT FLOW -------------------- */
-startBtn.addEventListener('click', ()=> startGame());
-howBtn.addEventListener('click', ()=> showModal(`<h3>How to Play</h3><p>Answer 13 multiple-choice questions on AI to win $1,000,000. You have 30 seconds per question, but the timer will pause when you select an answer to give you a moment to confirm.</p><p>You have 3 lifelines: <strong>50:50</strong> (removes two wrong answers), <strong>Phone an Expert</strong> (gets a hint), and <strong>Ask the Collective</strong> (simulates a poll).</p><p>There are two guaranteed prize levels: <strong>$1,000</strong> (Question 5) and <strong>$32,000</strong> (Question 10). If you get an answer wrong, you'll walk away with the last guaranteed amount you passed. Good luck!</p><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Got it!</button></div>`));
+startScreenImg.addEventListener('click', ()=> startGame());
+
+const howToPlayBtn = document.getElementById('howToPlayBtn');
+howToPlayBtn.addEventListener('click', (event)=> {
+  event.stopPropagation(); // Prevents the game from starting when clicking this button
+  showModal(`<h3>How to Play</h3><p>Answer 13 multiple-choice questions on AI to win $1,000,000. You have 30 seconds per question, but the timer will pause when you select an answer to give you a moment to confirm.</p><p>You have 3 lifelines: <strong>50:50</strong>, <strong>Ask Alexa</strong>, and <strong>Flip the Question</strong>.</p><p>There are two guaranteed prize levels: <strong>$1,000</strong> (Question 5) and <strong>$32,000</strong> (Question 10). If you get an answer wrong, you'll walk away with the last guaranteed amount you passed. Good luck!</p><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Got it!</button></div>`);
+});
+
 
 function startGame(){
   startScreen.style.display = 'none';
@@ -1014,8 +1058,8 @@ function startGame(){
   leaderboardSection.style.display = 'none';
   playerNameInput.value = '';
   playerNameInput.placeholder = 'Enter name for certificate';
-  state.usedLifelines = {'5050':false,'phone':false,'collective':false};
-  [btn5050,btnPhone,btnCollective].forEach(b => b.classList.remove('used'));
+  state.usedLifelines = {'5050':false,'alexa':false,'flip':false};
+  [btn5050, btnAlexa, btnFlip].forEach(b => b.classList.remove('used'));
   buildRound();
   state.currentIndex = 0;
   state.achievedTier = 0;
