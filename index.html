@@ -398,7 +398,7 @@ html,body{
     <div class="panel main" id="mainPanel">
 
       <div id="startScreen" class="start-screen fade-in">
-        <img id="startScreenImg" src="images/start-screen.png" alt="Who Wants to be a Gen-AI Millionaire - Play" title="Play Game">
+        <img id="startScreenImg" src="images/start-screen2.gif" alt="Who Wants to be a Gen-AI Millionaire - Play" title="Play Game">
         <button id="playGameBtn">Play Game</button>
         <button id="howToPlayBtn">How to Play</button>
       </div>
@@ -495,15 +495,17 @@ html,body{
     Built to help friends stay curious about GenAI. A project by <a href="https://www.linkedin.com/in/rahulsapru444/" target="_blank" rel="noopener noreferrer">Rahul Sapru</a>
   </footer>
 
-  <audio id="sndStart" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="sndIntro" src="sounds/intro-sound-effect_rs.mp3"></audio>
+  <audio id="sndCorrectRS" src="sounds/correct_rs.mp3"></audio>
+  <audio id="sndCongratsVoice" src="sounds/congratulations-deep-voice_rs.mp3"></audio>
+  <audio id="sndCrowdRS" src="sounds/crowd-cheering_rs.mp3"></audio>
+  <audio id="sndMilestoneRS" src="sounds/milestone-reached_rs.mp3"></audio>
+  <audio id="sndWrongRS" src="sounds/wrong-answer_rs.mp3"></audio>
+  <audio id="sndGameover" src="sounds/gameover.mp3"></audio>
   <audio id="sndSuspense" loop src="https://actions.google.com/sounds/v1/ambiences/medium_crowd_cheer.ogg"></audio>
   <audio id="sndFinal" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="sndCorrect" src="https://actions.google.com/sounds/v1/cartoon/clang.ogg"></audio>
-  <audio id="sndWrong" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"></audio>
   <audio id="sndLifeline" src="https://actions.google.com/sounds/v1/cartoon/slide_whistle.ogg"></audio>
-  <audio id="sndMilestone" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
   <audio id="sndCelebrate" src="https://actions.google.com/sounds/v1/alarms/medium_bell_ring.ogg"></audio>
-  <audio id="sndCrowd" loop src="https://actions.google.com/sounds/v1/ambiences/large_crowd_cheer_med.ogg"></audio>
 
 <script>
 /* -------------------- GAME DATA -------------------- */
@@ -558,8 +560,6 @@ let QUESTION_BANK = [
 {q:"What is the primary advantage of using a Small Language Model (SLM)?", choices:["They are more creative than large models.","Lower cost, faster performance, and high accuracy on niche tasks.","They are inherently more secure than large models.","They do not require any training data."], a:1, difficulty:2},
 {q:"Combining Bedrock Agents with AWS Step Functions helps with what?", choices:["Automatically fine-tuning the foundation model.","Providing a serverless environment for code execution.","Visualizing the agent's internal thought process.","Orchestrating complex, long-running, and stateful tasks."], a:3, difficulty:3},
 {q:"What is the main technical challenge for true multimodal AI?", choices:["The lack of sufficient video and audio data.","Finding a common representation space for all modalities.","The high cost of GPUs for processing video.","The slow speed of internet connections."], a:1, difficulty:3},
-
-// --- GENERAL AI QUESTIONS ---
 {q:"What is the primary goal of Context Engineering in GenAI?", choices:["To reduce the computational cost of AI models.","To strategically populate an AI model's context window with relevant information.","To develop new AI model architectures.","To improve the speed of AI model training."], a:1, difficulty:2},
 {q:"Which of the following is a key benefit of effective Context Engineering?", choices:["Decreased model accuracy.","Increased irrelevant data processing.","Optimized AI agent performance.","Reduced need for data pre-processing."], a:2, difficulty:2},
 {q:"Context Engineering is described as the discipline of designing and managing what?", choices:["AI model parameters.","Hardware infrastructure for AI.","Structures, signals, and affordances that modulate cognition and behavior.","User interfaces for AI applications."], a:2, difficulty:3},
@@ -588,8 +588,6 @@ let QUESTION_BANK = [
 {q:"Which of the following is a key aspect of GenAI evaluation?", choices:["Reducing computational resources.","Assessing factual accuracy.","Increasing model complexity.","Automating model deployment."], a:1, difficulty:1},
 {q:"What is a common challenge in GenAI evaluation?", choices:["Lack of computing power.","Subjectivity in human judgment.","Insufficient training data.","Slow model inference."], a:1, difficulty:2},
 {q:"What is the ultimate goal of GenAI evaluation?", choices:["To achieve perfect model performance.","To ensure trustworthy and effective AI systems.","To eliminate human intervention.","To create self-improving AI."], a:1, difficulty:1},
-
-// --- ORIGINAL, FILTERED QUESTIONS (REMAINING) ---
 {q:"What does 'LLM' commonly stand for in AI?", choices:["Large Language Model","Linear Learning Matrix","Local Latent Model","Low-Level ML"], a:0, difficulty:1},
 {q:"What is 'prompt engineering' primarily concerned with?", choices:["Designing training hardware","Tuning prompts to get better outputs","Building GPUs","Improving RLHF algorithms"], a:1, difficulty:1},
 {q:"Which core architecture is used by many modern language models like GPT?", choices:["Convolutional Networks","Recurrent Neural Networks","Transformers","Decision Trees"], a:2, difficulty:1},
@@ -687,11 +685,17 @@ const retroCert = document.getElementById('retroCertificate'),
       certDateEl = document.getElementById('certDate');
 
 // --- Audio Elements ---
-const sndStart = document.getElementById('sndStart'), sndSuspense = document.getElementById('sndSuspense'),
-      sndFinal = document.getElementById('sndFinal'), sndCorrect = document.getElementById('sndCorrect'),
-      sndWrong = document.getElementById('sndWrong'), sndLifeline = document.getElementById('sndLifeline'),
-      sndMilestone = document.getElementById('sndMilestone'), sndCelebrate = document.getElementById('sndCelebrate'),
-      sndCrowd = document.getElementById('sndCrowd');
+const sndIntro = document.getElementById('sndIntro'),
+      sndCorrectRS = document.getElementById('sndCorrectRS'),
+      sndCongratsVoice = document.getElementById('sndCongratsVoice'),
+      sndCrowdRS = document.getElementById('sndCrowdRS'),
+      sndMilestoneRS = document.getElementById('sndMilestoneRS'),
+      sndWrongRS = document.getElementById('sndWrongRS'),
+      sndGameover = document.getElementById('sndGameover'),
+      sndSuspense = document.getElementById('sndSuspense'),
+      sndFinal = document.getElementById('sndFinal'),
+      sndLifeline = document.getElementById('sndLifeline'),
+      sndCelebrate = document.getElementById('sndCelebrate');
 
 function playSound(el){ if(!el || state.isMuted) return; try{ el.currentTime = 0; el.play().catch(()=>{}); }catch(e){} }
 function stopSound(el){ try{ if(el){ el.pause(); el.currentTime = 0; } }catch(e){} }
@@ -743,13 +747,13 @@ function renderQuestion(){
     answersEl.appendChild(btn);
   });
   highlightPrize(); setTime(30);
-  stopSound(sndFinal); stopSound(sndCorrect); stopSound(sndWrong); playSound(sndSuspense);
+  stopSound(sndFinal); stopSound(sndCorrectRS); stopSound(sndWrongRS); playSound(sndSuspense);
 }
 
 /* -------------------- TIMER -------------------- */
 function setTime(t){ state.timeLeft = t; updateTimerUI(); }
 function updateTimerUI(){ timerEl.textContent = `${state.timeLeft}s`; timerEl.classList.remove('warning','danger'); if(state.timeLeft <= 10 && state.timeLeft > 5) timerEl.classList.add('warning'); if(state.timeLeft <= 5) timerEl.classList.add('danger'); }
-function startTimer(){ if(state.timerRef) clearInterval(state.timerRef); state.timerRef = setInterval(()=>{ state.timeLeft--; updateTimerUI(); if(state.timeLeft <= 0){ clearInterval(state.timerRef); state.timerRef = null; stopSound(sndSuspense); playSound(sndWrong); const final = guaranteedAtIndex(state.achievedTier - 1); endGame('timeout', final); } }, 1000); }
+function startTimer(){ if(state.timerRef) clearInterval(state.timerRef); state.timerRef = setInterval(()=>{ state.timeLeft--; updateTimerUI(); if(state.timeLeft <= 0){ clearInterval(state.timerRef); state.timerRef = null; stopSound(sndSuspense); playSound(sndWrongRS); const final = guaranteedAtIndex(state.achievedTier - 1); endGame('timeout', final); } }, 1000); }
 function pauseTimer(){ if(state.timerRef){ clearInterval(state.timerRef); state.timerRef = null; } }
 
 /* -------------------- ANSWER FLOW with FINAL overlay -------------------- */
@@ -769,7 +773,7 @@ function evaluateAnswer(chosenIndex, btnEl){
   const q = state.roundQuestions[state.currentIndex];
   const isCorrect = chosenIndex === q.a;
   if (isCorrect){
-    btnEl.classList.add('correct'); playSound(sndCorrect);
+    btnEl.classList.add('correct'); playSound(sndCorrectRS);
     state.achievedTier = state.currentIndex + 1;
     if (state.achievedTier === 13) { // Grand prize win
         stopSound(sndSuspense);
@@ -780,14 +784,14 @@ function evaluateAnswer(chosenIndex, btnEl){
     if (state.achievedTier === 5 || state.achievedTier === 10){
       const bank = guaranteedAtIndex(state.currentIndex);
       showModal(`<h3>Milestone Reached!</h3><p>Congratulations — you've reached a guaranteed level!</p><div style="margin-top:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:800;text-align:center;font-size:18px;">${bank}</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="modalClose" class="btn btn-start" style="padding:10px 16px">Continue</button></div>`);
-      playSound(sndMilestone);
+      playSound(sndMilestoneRS);
     }
     setTimeout(()=>{ state.currentIndex++; renderQuestion(); startTimer(); }, 1800);
   } else {
     btnEl.classList.add('wrong');
     const corr = Array.from(answersEl.children).find(b => Number(b.dataset.index) === q.a);
     if (corr) corr.classList.add('correct');
-    playSound(sndWrong); stopSound(sndSuspense);
+    playSound(sndWrongRS); stopSound(sndSuspense);
     const final = guaranteedAtIndex(state.currentIndex - 1);
     setTimeout(()=> endGame('lose', final), 2000);
   }
@@ -814,11 +818,13 @@ function showGrandPrizeCelebration() {
     overlay.innerHTML = `<img src="images/winner.gif" alt="Congratulations! You've Won!">`;
     winContainer.appendChild(overlay);
 
-    playSound(sndCrowd);
+    playSound(sndCongratsVoice);
+    playSound(sndCrowdRS);
 
     setTimeout(() => {
         winContainer.innerHTML = '';
-        stopSound(sndCrowd);
+        stopSound(sndCongratsVoice);
+        stopSound(sndCrowdRS);
         endGame('win', prizeForIndex(12));
     }, 5000); // Display GIF for 5 seconds
 }
@@ -879,6 +885,8 @@ function endGame(reason, amountLabel){
 
   if (state.timerRef) clearInterval(state.timerRef);
   stopSound(sndSuspense);
+  if (reason !== 'win') { playSound(sndGameover); }
+  
   let title = "Game Over";
   if (reason === 'win') title = "Congratulations!";
   else if (reason === 'timeout') title = "Out of Time!";
@@ -948,7 +956,10 @@ saveScoreBtn.addEventListener('click', ()=>{
   postSaveControls.style.display = 'flex';
 });
 
-playAgainBtn.addEventListener('click', ()=> startGame());
+playAgainBtn.addEventListener('click', ()=> {
+    playSound(sndIntro);
+    startGame();
+});
 
 /* -------------------- PNG CERTIFICATE (canvas) -------------------- */
 certBtn.addEventListener('click', async () => {
@@ -1069,19 +1080,22 @@ function startGame(){
   state.playing = true;
   renderQuestion();
   startTimer();
-  playSound(sndStart);
+  // Don't play intro sound here, it's played on button click or init
 }
 
 muteToggle.addEventListener('click', ()=>{
   state.isMuted = !state.isMuted;
   muteToggle.textContent = state.isMuted ? '🔇' : '🔊';
-  if(state.isMuted){ [sndStart,sndSuspense,sndFinal,sndCorrect,sndWrong,sndLifeline,sndMilestone,sndCelebrate,sndCrowd].forEach(stopSound); }
+  if(state.isMuted){ 
+    [sndIntro, sndCorrectRS, sndCongratsVoice, sndCrowdRS, sndMilestoneRS, sndWrongRS, sndGameover, sndSuspense, sndFinal, sndLifeline, sndCelebrate].forEach(stopSound);
+  }
 });
 
 (function init(){
   populatePrizeLadder();
   gameArea.style.display = 'none';
   endScreen.style.display = 'none';
+  playSound(sndIntro); // Play intro sound on first page load
 })();
 </script>
 </body>
