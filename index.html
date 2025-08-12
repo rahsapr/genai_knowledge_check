@@ -171,38 +171,41 @@ html,body{
   gap: 8px;
   margin-top: 29px;
 }
-#volumeControl span {
-  font-size: 20px;
+#volumeControl img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
 }
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  width: 100px;
-  height: 6px;
-  background: rgba(0,0,0,0.3);
+  width: 120px;
+  height: 8px;
+  background: linear-gradient(to right, var(--accent1) 0%, var(--accent1) var(--volume-progress, 50%), rgba(0,0,0,0.3) var(--volume-progress, 50%), rgba(0,0,0,0.3) 100%);
   border-radius: 5px;
   outline: none;
   border: 1px solid var(--border-light);
   cursor: pointer;
+  transition: background 0.1s ease;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
   height: 18px;
-  background: var(--accent1);
+  background: #fff;
   cursor: pointer;
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent1);
+  box-shadow: 0 0 10px 2px #fff, 0 0 20px 2px var(--accent1);
 }
 input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: var(--accent1);
+  background: #fff;
   cursor: pointer;
   border-radius: 50%;
   border: none;
-  box-shadow: 0 0 8px var(--accent1);
+  box-shadow: 0 0 10px 2px #fff, 0 0 20px 2px var(--accent1);
 }
 
 
@@ -439,7 +442,7 @@ input[type="range"]::-moz-range-thumb {
     <div class="panel main" id="mainPanel">
 
       <div id="startScreen" class="start-screen fade-in">
-        <img id="startScreenImg" src="images/start-screen.png" alt="Who Wants to be a Gen-AI Millionaire - Play" title="Play Game">
+        <img id="startScreenImg" src="images/start-screen2.gif" alt="Who Wants to be a Gen-AI Millionaire - Play" title="Play Game">
         <button id="playGameBtn">Play Game</button>
         <button id="howToPlayBtn">How to Play</button>
       </div>
@@ -465,8 +468,9 @@ input[type="range"]::-moz-range-thumb {
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <div id="volumeControl" title="Adjust Volume">
-              <span>🔊</span>
+              <img src="images/low_volume.png" alt="Low Volume">
               <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+              <img src="images/high_volume.png" alt="High Volume">
             </div>
             <div id="timer" class="timer">30s</div>
           </div>
@@ -744,13 +748,17 @@ const sndIntro = document.getElementById('sndIntro'),
       
 const allSounds = [sndIntro, sndCorrectRS, sndCongratsVoice, sndCrowdRS, sndMilestoneRS, sndWrongRS, sndGameover, sndSuspense, sndFinal, sndLifeline, sndCelebrate];
 
+let hasPlayedIntro = false;
+
 function playSound(el){ 
-  if(!el) return; 
+  if(!el) return Promise.reject(); 
   el.volume = state.volume;
   try { 
     el.currentTime = 0; 
-    el.play().catch(()=>{}); 
-  } catch(e){} 
+    return el.play(); 
+  } catch(e){
+    return Promise.reject(e);
+  } 
 }
 function stopSound(el){ try{ if(el){ el.pause(); el.currentTime = 0; } }catch(e){} }
 
@@ -1110,6 +1118,11 @@ howToPlayBtn.addEventListener('click', (event)=> {
 
 
 function startGame(){
+  if (!hasPlayedIntro) {
+    playSound(sndIntro);
+    hasPlayedIntro = true;
+  }
+  
   startScreen.style.display = 'none';
   endScreen.style.display = 'none';
   gameArea.style.display = 'flex';
@@ -1137,17 +1150,23 @@ function startGame(){
 
 volumeSlider.addEventListener('input', (event) => {
     state.volume = event.target.value;
-    // Provide real-time feedback for looping sounds
-    sndSuspense.volume = state.volume;
-    sndCrowdRS.volume = state.volume;
+    allSounds.forEach(sound => sound.volume = state.volume);
+    document.documentElement.style.setProperty('--volume-progress', `${state.volume * 100}%`);
 });
 
 (function init(){
   populatePrizeLadder();
+  volumeSlider.value = state.volume;
+  document.documentElement.style.setProperty('--volume-progress', `${state.volume * 100}%`);
   allSounds.forEach(sound => sound.volume = state.volume);
   gameArea.style.display = 'none';
   endScreen.style.display = 'none';
-  playSound(sndIntro); // Play intro sound on first page load
+  // Try to play intro sound, browser might block it until user interaction
+  playSound(sndIntro).then(() => {
+    hasPlayedIntro = true;
+  }).catch(() => {
+    hasPlayedIntro = false;
+  });
 })();
 </script>
 </body>
