@@ -156,7 +156,6 @@ html,body{
 .lifeline-btn:hover{ transform:translateY(-3px); box-shadow: 0 8px 20px rgba(2,6,18,0.8); }
 .lifeline-btn.used{ opacity:0.5; pointer-events:none; transform:none; box-shadow: none; }
 .lifeline-btn.used img { filter: grayscale(1); }
-#muteToggle { font-size: 20px; margin-top: 29px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); border: 1px solid var(--border-light); }
 
 /* tooltip on hover */
 .lifeline-btn .tooltip{
@@ -164,6 +163,48 @@ html,body{
   padding:8px 12px; border-radius:8px; font-size:13px; white-space:nowrap; display:none; box-shadow:0 8px 30px rgba(0,0,0,0.6); z-index: 10;
 }
 .lifeline-btn:hover .tooltip{ display:block }
+
+/* Volume Slider */
+#volumeControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 29px;
+}
+#volumeControl span {
+  font-size: 20px;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 6px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 5px;
+  outline: none;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent1);
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent1);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--accent1);
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 0 8px var(--accent1);
+}
+
 
 /* timer */
 .timer{ margin-top: 29px; /* Align with other buttons */ padding:10px 18px; border-radius:10px; font-weight:900; font-size:22px; min-width:90px; text-align:center; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.06)); border:1px solid var(--border-light); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -423,7 +464,10 @@ html,body{
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <div id="muteToggle" class="lifeline-btn" title="Toggle sound">🔊</div>
+            <div id="volumeControl" title="Adjust Volume">
+              <span>🔊</span>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+            </div>
             <div id="timer" class="timer">30s</div>
           </div>
         </div>
@@ -649,7 +693,7 @@ QUESTION_BANK = QUESTION_BANK.concat(AMAZON_QUESTIONS);
 let state = {
   roundQuestions: [], currentIndex:0,
   usedLifelines: {'5050':false,'alexa':false,'flip':false},
-  timerRef:null, timeLeft:30, isMuted:false, playing:false,
+  timerRef:null, timeLeft:30, volume: 0.5, playing:false,
   achievedTier:0, finalPrizeLabel:"$0"
 };
 
@@ -660,7 +704,8 @@ const startScreen = document.getElementById('startScreen'),
       qIndexEl = document.getElementById('qIndex'), questionText = document.getElementById('questionText'),
       answersEl = document.getElementById('answers'), timerEl = document.getElementById('timer'),
       btn5050 = document.getElementById('btn5050'), btnAlexa = document.getElementById('btnAlexa'), btnFlip = document.getElementById('btnFlip'),
-      muteToggle = document.getElementById('muteToggle'), walkAwayBtn = document.getElementById('walkAwayBtn'),
+      volumeSlider = document.getElementById('volumeSlider'),
+      walkAwayBtn = document.getElementById('walkAwayBtn'),
       prizeListEl = document.getElementById('prizeList'), currentPrizeEl = document.getElementById('currentPrize'),
       modalRoot = document.getElementById('modalRoot'), finalOverlay = document.getElementById('finalOverlay'),
       finalChoiceText = document.getElementById('finalChoice'), finalConfirm = document.getElementById('finalConfirm'), finalCancel = document.getElementById('finalCancel'),
@@ -696,8 +741,17 @@ const sndIntro = document.getElementById('sndIntro'),
       sndFinal = document.getElementById('sndFinal'),
       sndLifeline = document.getElementById('sndLifeline'),
       sndCelebrate = document.getElementById('sndCelebrate');
+      
+const allSounds = [sndIntro, sndCorrectRS, sndCongratsVoice, sndCrowdRS, sndMilestoneRS, sndWrongRS, sndGameover, sndSuspense, sndFinal, sndLifeline, sndCelebrate];
 
-function playSound(el){ if(!el || state.isMuted) return; try{ el.currentTime = 0; el.play().catch(()=>{}); }catch(e){} }
+function playSound(el){ 
+  if(!el) return; 
+  el.volume = state.volume;
+  try { 
+    el.currentTime = 0; 
+    el.play().catch(()=>{}); 
+  } catch(e){} 
+}
 function stopSound(el){ try{ if(el){ el.pause(); el.currentTime = 0; } }catch(e){} }
 
 /* -------------------- PRIZE LADDER UI -------------------- */
@@ -957,7 +1011,6 @@ saveScoreBtn.addEventListener('click', ()=>{
 });
 
 playAgainBtn.addEventListener('click', ()=> {
-    playSound(sndIntro);
     startGame();
 });
 
@@ -1083,16 +1136,16 @@ function startGame(){
   // Don't play intro sound here, it's played on button click or init
 }
 
-muteToggle.addEventListener('click', ()=>{
-  state.isMuted = !state.isMuted;
-  muteToggle.textContent = state.isMuted ? '🔇' : '🔊';
-  if(state.isMuted){ 
-    [sndIntro, sndCorrectRS, sndCongratsVoice, sndCrowdRS, sndMilestoneRS, sndWrongRS, sndGameover, sndSuspense, sndFinal, sndLifeline, sndCelebrate].forEach(stopSound);
-  }
+volumeSlider.addEventListener('input', (event) => {
+    state.volume = event.target.value;
+    // Provide real-time feedback for looping sounds
+    sndSuspense.volume = state.volume;
+    sndCrowdRS.volume = state.volume;
 });
 
 (function init(){
   populatePrizeLadder();
+  allSounds.forEach(sound => sound.volume = state.volume);
   gameArea.style.display = 'none';
   endScreen.style.display = 'none';
   playSound(sndIntro); // Play intro sound on first page load
